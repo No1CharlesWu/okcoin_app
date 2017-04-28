@@ -15,7 +15,7 @@ okcoin_rest_url = 'www.okcoin.cn'
 okcoinSpot = OKCoinSpot(okcoin_rest_url, api_key, secret_key)
 
 
-def test_ticker(symbol):
+def test_rest_ticker(symbol):
     """
     date: 返回数据时服务器时间
     buy: 买一价
@@ -25,14 +25,14 @@ def test_ticker(symbol):
     sell: 卖一价
     vol: 成交量(最近的24小时)
     symbol  String  否(默认btc_cny)   btc_cny:比特币    ltc_cny :莱特币
-    :param string: 'btc_cny' 'ltc_cny' 
+    :param symbol: 'btc_cny' 'ltc_cny' 
     :return: 
     """
     print('现货行情 ticker: symbol=%s' % symbol)
     print(strftime("%H:%M:%S"), okcoinSpot.ticker(symbol))
 
 
-def test_depth(**kwargs):
+def test_rest_depth(**kwargs):
     """
     asks :卖方深度
     bids :买方深度
@@ -49,7 +49,7 @@ def test_depth(**kwargs):
     print(okcoinSpot.depth(**kwargs))
 
 
-def test_trades(**kwargs):
+def test_rest_trades(**kwargs):
     """
     date:交易时间
     date_ms:交易时间(ms)
@@ -68,7 +68,7 @@ def test_trades(**kwargs):
     print(okcoinSpot.trades(**kwargs))
 
 
-def test_kline(*, symbol, type, **kwargs):
+def test_rest_kline(*, symbol, type, **kwargs):
     """
     1417536000000,	时间戳
     2370.16,	开
@@ -93,8 +93,8 @@ def test_kline(*, symbol, type, **kwargs):
     print(okcoinSpot.kline(symbol=symbol, type=type))
 
 
-test_ticker('btc_cny')
-test_ticker('ltc_cny')
-test_depth(symbol='btc_cny', size=3)
-test_trades()
-test_kline(symbol='btc_cny', type='3min')
+# test_rest_ticker('btc_cny')
+# test_rest_ticker('ltc_cny')
+# test_rest_depth(symbol='btc_cny', size=3)
+# test_rest_trades()
+test_rest_kline(symbol='btc_cny', type='3min')
