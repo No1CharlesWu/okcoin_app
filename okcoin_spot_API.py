@@ -25,18 +25,15 @@ class OKCoinSpot:
         return http_get(self.__url, depth_resource, params)
 
     # 获取OKCOIN现货历史交易信息
-    def trades(self, symbol=''):
+    def trades(self, **kwargs):
         trades_resource = "/api/v1/trades.do"
-        params = ''
-        if symbol:
-            params = 'symbol=%(symbol)s' % {'symbol': symbol}
+        params = '&'.join([k + '=' + str(v) for k, v in kwargs.items()])
         return http_get(self.__url, trades_resource, params)
 
-    def kline(self, symbol=''):
+    # 获取OKCOIN现货K线数据
+    def kline(self, **kwargs):
         kline_resource = "/api/v1/kline.do"
-        params = ''
-        if symbol:
-            params = 'symbol=%(symbol)s' % {'symbol': symbol}
+        params = '&'.join([k + '=' + str(v) for k, v in kwargs.items()])
         return http_get(self.__url, kline_resource, params)
 
     # 获取用户现货账户信息
