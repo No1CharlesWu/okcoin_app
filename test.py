@@ -94,8 +94,10 @@ def test_rest_kline(*, symbol, type, **kwargs):
     print(okcoinSpot.kline(symbol=symbol, type=type))
 
 
-test_rest_ticker('btc_cny')
+if __name__ == '__main__':
+    for i in range(10):
+        test_rest_ticker('btc_cny')
 # test_rest_ticker('ltc_cny')
-test_rest_depth(symbol='btc_cny', size=3)
-test_rest_trades()
-test_rest_kline(symbol='btc_cny', type='3min')
+# test_rest_depth(symbol='btc_cny', size=3)
+# test_rest_trades()
+# test_rest_kline(symbol='btc_cny', type='1min')

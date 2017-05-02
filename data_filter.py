@@ -1,3 +1,6 @@
+from collections import namedtuple
+
+
 class DataFilter(object):
     def __init__(self):
         self.__ticker_list = list()
@@ -25,7 +28,11 @@ class DataFilter(object):
             self.websocket_filter_data(data)
 
     def ticker_add_data(self, data):
-        pass
+        ticker = namedtuple('ticker', ['timestamp', 'buy', 'sell', 'high', 'low', 'last', 'vol'])
+        tmp = data['ticker']
+        t = ticker(data['date'], float(tmp['buy']), float(tmp['sell']), float(tmp['high']), float(tmp['low']),
+                   float(tmp['last']), float(tmp['vol']))
+        self.__ticker_list.append(t)
 
     def depth_add_data(self, data):
         pass

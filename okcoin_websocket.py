@@ -31,9 +31,9 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 def on_open(self):
     l = list()
-    l.append(websocket_ticker())
-    l.append(websocket_depth())
-    l.append(websocket_trades())
+    # l.append(websocket_ticker())
+    # l.append(websocket_depth())
+    # l.append(websocket_trades())
     l.append(websocket_kline())
     self.send(str(l))
 
@@ -51,14 +51,15 @@ def on_message(self, evt):
     if type(evt) == bytes:
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
+    print(data)
     my_data_filter.add_data(data, 'websocket')
 
 
-def on_error(self, evt):
-    print(evt)
+def on_error(self, error):
+    print(error)
 
 
-def on_close(self, evt):
+def on_close(self):
     print('DISCONNECT')
 
 
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     secret_key = '7C1DDC1745C93B87BE1643A689938459'
     my_data_filter = DataFilter()
 
-    websocket.enableTrace(False)
+    websocket.enableTrace(True)
     host = url
     ws = websocket.WebSocketApp(host,
                                 on_message=on_message,
