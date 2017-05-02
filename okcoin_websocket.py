@@ -1,38 +1,41 @@
 import websocket
 import zlib
+import json
+from data_filter import DataFilter
 
 
 def websocket_ticker(symbol='btc', event='addChannel', binary=True):
     channel = 'ok_sub_spotcny_' + symbol + '_ticker'
-    return str({'event': event, 'channel': channel, 'binary': str(binary)})
+    return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
 def websocket_incremental_depth(symbol='btc', event='addChannel', binary=True):
     channel = 'ok_sub_spot_' + symbol + '_depth'
-    return str({'event': event, 'channel': channel, 'binary': str(binary)})
+    return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
 def websocket_depth(symbol='btc', size=20, event='addChannel', binary=True):
     channel = 'ok_sub_spotcny_' + symbol + '_depth_' + str(size)
-    return str({'event': event, 'channel': channel, 'binary': str(binary)})
+    return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
 def websocket_trades(symbol='btc', event='addChannel', binary=True):
     channel = 'ok_sub_spotcny_' + symbol + '_trades'
-    return str({'event': event, 'channel': channel, 'binary': str(binary)})
+    return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
 def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
     channel = 'ok_sub_spotcny_' + symbol + '_kline_' + time
-    return str({'event': event, 'channel': channel, 'binary': str(binary)})
+    return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
 def on_open(self):
-    # self.send(websocket_ticker())
-    # self.send(websocket_incremental_depth())
-    # self.send(websocket_depth('btc', 20))
-    # self.send(websocket_trades())
-    self.send(websocket_kline('btc', 'week'))
+    l = list()
+    l.append(websocket_ticker())
+    l.append(websocket_depth())
+    l.append(websocket_trades())
+    l.append(websocket_kline())
+    self.send(str(l))
 
 
 def inflate(data):
@@ -46,9 +49,9 @@ def inflate(data):
 
 def on_message(self, evt):
     if type(evt) == bytes:
-        evt = inflate(evt)  # data decompress
-
-    print(evt)
+        evt = str(inflate(evt), 'utf-8')  # data decompress
+    data = json.loads(evt)[0]
+    my_data_filter.add_data(data, 'websocket')
 
 
 def on_error(self, evt):
@@ -63,6 +66,7 @@ if __name__ == "__main__":
     url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
     api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
     secret_key = '7C1DDC1745C93B87BE1643A689938459'
+    my_data_filter = DataFilter()
 
     websocket.enableTrace(False)
     host = url

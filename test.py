@@ -29,7 +29,8 @@ def test_rest_ticker(symbol):
     :return: 
     """
     print('现货行情 ticker: symbol=%s' % symbol)
-    print(strftime("%H:%M:%S"), okcoinSpot.ticker(symbol))
+    data = okcoinSpot.ticker(symbol)
+    print(strftime("%H:%M:%S"), data, type(data))
 
 
 def test_rest_depth(**kwargs):
@@ -93,8 +94,8 @@ def test_rest_kline(*, symbol, type, **kwargs):
     print(okcoinSpot.kline(symbol=symbol, type=type))
 
 
-# test_rest_ticker('btc_cny')
+test_rest_ticker('btc_cny')
 # test_rest_ticker('ltc_cny')
-# test_rest_depth(symbol='btc_cny', size=3)
-# test_rest_trades()
+test_rest_depth(symbol='btc_cny', size=3)
+test_rest_trades()
 test_rest_kline(symbol='btc_cny', type='3min')
