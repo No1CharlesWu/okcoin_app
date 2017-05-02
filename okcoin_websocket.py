@@ -2,6 +2,7 @@ import websocket
 import zlib
 import json
 from data_filter import DataFilter
+from datetime import datetime
 
 
 def websocket_ticker(symbol='btc', event='addChannel', binary=True):
@@ -30,6 +31,9 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 
 def on_open(self):
+    # TODO
+    # 开一个thread， 发送心跳。不超过30秒一发。{'event': 'ping'}
+
     l = list()
     # l.append(websocket_ticker())
     # l.append(websocket_depth())
@@ -48,10 +52,12 @@ def inflate(data):
 
 
 def on_message(self, evt):
+    # TODO
+    # 多加一个心跳{'event': 'pong'}
     if type(evt) == bytes:
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
-    print(data)
+    print(datetime.now(), data)
     my_data_filter.add_data(data, 'websocket')
 
 
