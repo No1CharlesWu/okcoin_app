@@ -1,7 +1,7 @@
 import websocket
 import zlib
 import json
-from data_filter import DataFilter
+import data_filter
 from datetime import datetime
 
 
@@ -31,14 +31,11 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 
 def on_open(self):
-    # TODO
-    # 开一个thread， 发送心跳。不超过30秒一发。{'event': 'ping'}
-
     l = list()
-    # l.append(websocket_ticker())
+    l.append(websocket_ticker())
     # l.append(websocket_depth())
     # l.append(websocket_trades())
-    l.append(websocket_kline())
+    # l.append(websocket_kline())
     self.send(str(l))
 
 
@@ -52,28 +49,27 @@ def inflate(data):
 
 
 def on_message(self, evt):
-    # TODO
-    # 多加一个心跳{'event': 'pong'}
     if type(evt) == bytes:
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
     print(datetime.now(), data)
-    my_data_filter.add_data(data, 'websocket')
+    data_filter.get_my_data_filter().add_data(data, 'websocket')
 
 
 def on_error(self, error):
     print(error)
+    websocket_start()
 
 
 def on_close(self):
     print('DISCONNECT')
+    websocket_start()
 
 
-if __name__ == "__main__":
+def websocket_start():
     url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
     api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
     secret_key = '7C1DDC1745C93B87BE1643A689938459'
-    my_data_filter = DataFilter()
 
     websocket.enableTrace(True)
     host = url
@@ -82,4 +78,8 @@ if __name__ == "__main__":
                                 on_error=on_error,
                                 on_close=on_close)
     ws.on_open = on_open
-    ws.run_forever()
+    ws.run_forever(ping_interval=20)
+
+
+if __name__ == "__main__":
+    websocket_start()
