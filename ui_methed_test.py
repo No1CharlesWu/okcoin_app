@@ -25,7 +25,7 @@ def ui_thread_display_ticker_table(self):
         self.trickertable.setItem(0, 0, tmp)
         tmp = QtWidgets.QTableWidgetItem(str(d['buy']))
         self.trickertable.setItem(0, 1, tmp)
-        tmp = QtWidgeTableWidgetItem(str(d['sell']))
+        tmp = QtWidgets.QTableWidgetItem(str(d['sell']))
         self.trickertable.setItem(0, 2, tmp)
         tmp = QtWidgets.QTableWidgetItem(str(d['high']))
         self.trickertable.setItem(0, 3, tmp)
