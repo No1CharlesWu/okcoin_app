@@ -1,8 +1,8 @@
 import websocket
 import zlib
 import json
-import data_filter
 from datetime import datetime
+from data_filter import get_global_data_filter
 
 
 def websocket_ticker(symbol='btc', event='addChannel', binary=True):
@@ -53,7 +53,8 @@ def on_message(self, evt):
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
     print(datetime.now(), data)
-    data_filter.get_my_data_filter().add_data(data, 'websocket')
+
+    get_global_data_filter().add_data(data, 'websocket')
 
 
 def on_error(self, error):
@@ -70,7 +71,6 @@ def websocket_start():
     url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
     api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
     secret_key = '7C1DDC1745C93B87BE1643A689938459'
-
     websocket.enableTrace(True)
     host = url
     ws = websocket.WebSocketApp(host,

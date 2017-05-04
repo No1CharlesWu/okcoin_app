@@ -2,6 +2,8 @@ from collections import namedtuple
 
 
 class DataFilter(object):
+    __instance = None
+
     def __init__(self):
         self.__ticker_list = list()
         self.__depth_list_asks = list()
@@ -9,14 +11,17 @@ class DataFilter(object):
         self.__trades_list = list()
         self.__kline_list = list()
 
+    def __new__(cls, *args, **kwargs):
+        if DataFilter.__instance is None:
+            DataFilter.__instance = object.__new__(cls, *args, **kwargs)
+        return DataFilter.__instance
+
     def websocket_filter_data(self, data):
         channel = data['channel']
         print(channel)
         if 'ticker' in channel:
-            # TODO
-            pass
-            # self.__ticker_list.append(data['data'])
-            # self.__ticker_list.sort(key=lambda d: d['timestamp'])
+            self.__ticker_list.append(data['data'])
+            self.__ticker_list.sort(key=lambda d: d['timestamp'])
         elif 'depth' in channel:
             # TODO
             # self.__depth_list.append(data['data'])
@@ -81,3 +86,12 @@ class DataFilter(object):
 
     def get_kline_list(self):
         return self.__kline_list
+
+
+global global_data_filter
+global_data_filter = DataFilter()
+
+
+def get_global_data_filter():
+    return global_data_filter
+

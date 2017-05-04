@@ -4,8 +4,8 @@
 # 客户端调用，用于查看API返回结果
 
 from okcoin_spot_API import OKCoinSpot
-from time import sleep, strftime
-from data_filter import DataFilter
+from time import strftime
+from data_filter import get_global_data_filter
 
 # 初始化api_key，secret_key,url
 api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
@@ -32,7 +32,7 @@ def test_rest_ticker(symbol):
     print('现货行情 ticker: symbol=%s' % symbol)
     data = okcoinSpot.ticker(symbol)
     print(strftime("%H:%M:%S"), data, type(data))
-    my_data.ticker_add_data(data)
+    get_global_data_filter().ticker_add_data(data)
 
 
 def test_rest_depth(**kwargs):
@@ -51,7 +51,7 @@ def test_rest_depth(**kwargs):
     print('现货深度 depth: symbol=%s size=%s merge=%s' % (symbol, size, merge))
     data = okcoinSpot.depth(**kwargs)
     print(okcoinSpot.depth(**kwargs))
-    my_data.depth_add_data(data)
+    get_global_data_filter().depth_add_data(data)
 
 
 def test_rest_trades(**kwargs):
@@ -72,7 +72,7 @@ def test_rest_trades(**kwargs):
     print('现货历史交易信息 trades: symbol=%s since=%s' % (symbol, since))
     data = okcoinSpot.trades(**kwargs)
     print(okcoinSpot.trades(**kwargs))
-    my_data.trades_add_data(data)
+    get_global_data_filter().trades_add_data(data)
 
 
 def test_rest_kline(*, symbol, type, **kwargs):
@@ -99,22 +99,21 @@ def test_rest_kline(*, symbol, type, **kwargs):
     print('现货K线数据 kline: symbol=%s type=%s size=%s since=%s' % (symbol, type, size, since))
     data = okcoinSpot.kline(symbol=symbol, type=type)
     print(okcoinSpot.kline(symbol=symbol, type=type))
-    my_data.kline_add_data(data)
+    get_global_data_filter().kline_add_data(data)
 
 
 if __name__ == '__main__':
-    my_data = DataFilter()
-    # for i in range(10):
-    #     test_rest_ticker('btc_cny')
-    # print(my_data.get_ticker_list())
+    for i in range(10):
+        test_rest_ticker('btc_cny')
+    print(get_global_data_filter().get_ticker_list())
 
-    # for i in range(10):
-    #     test_rest_depth(symbol='btc_cny', size=3)
-    # print(my_data.get_depth_list_asks())
-    # print(my_data.get_depth_list_bids())
-    # for i in range(10):
-    #     test_rest_trades()
-    # print(my_data.get_trades_list())
+    for i in range(10):
+        test_rest_depth(symbol='btc_cny', size=3)
+    print(get_global_data_filter().get_depth_list_asks())
+    print(get_global_data_filter().get_depth_list_bids())
+    for i in range(10):
+        test_rest_trades()
+    print(get_global_data_filter().get_trades_list())
     for i in range(10):
         test_rest_kline(symbol='btc_cny', type='1min')
-    print(my_data.get_kline_list())
+    print(get_global_data_filter().get_kline_list())
