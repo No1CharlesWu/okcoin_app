@@ -30,11 +30,10 @@ class DataFilter(object):
             self.con_ticker.wait()
             print('ticker_list is not full')
         self.lock_add_ticker.acquire()
+        print('product start')
         try:
-            print(data, type(data))
             self.__ticker_list.append(data['data'])
             self.__ticker_list.sort(key=lambda d: d['timestamp'])
-            print(data['data'])
         finally:
             self.lock_add_ticker.release()
             print('add_ticker_list lock release')
@@ -101,12 +100,12 @@ class DataFilter(object):
     def get_ticker_list(self):
         self.con_ticker.acquire()
         if len(self.__ticker_list) == 0:
-            print('ticker_list empty')
+            print('ticker_list empty, get wait')
             self.con_ticker.wait()
             print('ticker_list have something')
         self.lock_get_ticker.acquire()
+        print('get food.')
         try:
-            print(self.__ticker_list)
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
             return r_data
