@@ -52,7 +52,7 @@ def on_message(self, evt):
     if type(evt) == bytes:
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
-    print(datetime.now(), data)
+    # print(datetime.now(), data)
     get_global_data_filter().add_data(data, 'websocket')
 
 
