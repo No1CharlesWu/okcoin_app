@@ -1,9 +1,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ui_methed_test import *
 import threading
-
+import random
+import datetime
+import data_filter
 
 class Ui_MainWindow(object):
+    ticker_time = 0
+    ticker_rest = True
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1209, 755)
@@ -60,9 +65,30 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.connect_button.clicked.connect(self.to_connect)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.operate)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def operate(self):
+        dt = datetime.datetime.now()
+        now = dt.timestamp() * 1000
+        print('operate !!!!!!!!!', self.ticker_time, now)
+        if self.ticker_time:
+            interval = int(now - self.ticker_time)
+            if interval < 1000:
+                self.timer.stop()
+                self.timer.start(1000 - interval)
+            else:
+                self.timer.stop()
+                self.timer.start(1000)
+                if self.ticker_rest:
+                    print('send rest')
+                    ui_thread_rest_ticker(self)
+                    self.ticker_rest = False
+
     def to_connect(self):
+        self.timer.start(1000)
         ui_thread_websocket_start(self)
         ui_change_status_label(self)
         ui_thread_display_ticker_table(self)

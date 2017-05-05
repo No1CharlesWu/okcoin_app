@@ -5,11 +5,13 @@ import okcoin_websocket
 import ui_app
 import zlib
 import json
-from datetime import datetime
+import datetime
 from time import sleep
 import threading
 from PyQt5 import QtCore, QtGui, QtWidgets
 from data_filter import get_global_data_filter
+import okcoin_rest_test
+import random
 
 
 def ui_change_status_label(self):
@@ -33,6 +35,10 @@ def display_ticker_table(self):
         else:
             ok = False
         print('ui', ok, new_time)
+        self.ticker_time = new_time
+        self.ticker_rest = True
+        # self.ticker_time = datetime.datetime.now().timestamp() * 1000
+
         self.ticker_table.clearContents()
         tmp = QtWidgets.QTableWidgetItem(str(d['timestamp']))
         self.ticker_table.setItem(0, 0, tmp)
@@ -54,6 +60,11 @@ def display_ticker_table(self):
 
 def ui_thread_display_ticker_table(self):
     t = threading.Thread(target=display_ticker_table, name='display_ticker_table', args=(self,))
+    t.start()
+
+
+def ui_thread_rest_ticker(self):
+    t = threading.Thread(target=okcoin_rest_test.test_rest_ticker, name='rest_ticker', args=('btc_cny',))
     t.start()
 
 

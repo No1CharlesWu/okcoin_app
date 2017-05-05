@@ -29,9 +29,9 @@ def test_rest_ticker(symbol):
     :param symbol: 'btc_cny' 'ltc_cny' 
     :return: 
     """
-    print('现货行情 ticker: symbol=%s' % symbol)
+    # print('现货行情 ticker: symbol=%s' % symbol)
     data = okcoinSpot.ticker(symbol)
-    print(strftime("%H:%M:%S"), data, type(data))
+    # print(strftime("%H:%M:%S"), data, type(data))
     get_global_data_filter().ticker_add_data(data)
 
 
