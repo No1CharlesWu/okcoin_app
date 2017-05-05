@@ -24,38 +24,35 @@ def ui_thread_websocket_start(self):
 
 
 def display_ticker_table(self):
-    last = 0
-    ok = False
+    last = {'timestamp': 0}
     while True:
         d = get_global_data_filter().get_ticker_list()
         new_time = d['timestamp']
         if new_time >= last:
-            last = new_time
+            last = d
             ok = True
+            self.ticker_table.clearContents()
+            tmp = QtWidgets.QTableWidgetItem(str(d['timestamp']))
+            self.ticker_table.setItem(0, 0, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['buy']))
+            self.ticker_table.setItem(0, 1, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['sell']))
+            self.ticker_table.setItem(0, 2, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['high']))
+            self.ticker_table.setItem(0, 3, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['low']))
+            self.ticker_table.setItem(0, 4, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['last']))
+            self.ticker_table.setItem(0, 5, tmp)
+            tmp = QtWidgets.QTableWidgetItem(str(d['vol']))
+            self.ticker_table.setItem(0, 6, tmp)
+            self.ticker_table.update()
+            sleep(0.2)
+            self.ticker_time = new_time
+            self.ticker_rest = True
         else:
             ok = False
         print('ui', ok, new_time)
-        self.ticker_time = new_time
-        self.ticker_rest = True
-        # self.ticker_time = datetime.datetime.now().timestamp() * 1000
-
-        self.ticker_table.clearContents()
-        tmp = QtWidgets.QTableWidgetItem(str(d['timestamp']))
-        self.ticker_table.setItem(0, 0, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['buy']))
-        self.ticker_table.setItem(0, 1, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['sell']))
-        self.ticker_table.setItem(0, 2, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['high']))
-        self.ticker_table.setItem(0, 3, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['low']))
-        self.ticker_table.setItem(0, 4, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['last']))
-        self.ticker_table.setItem(0, 5, tmp)
-        tmp = QtWidgets.QTableWidgetItem(str(d['vol']))
-        self.ticker_table.setItem(0, 6, tmp)
-        self.ticker_table.update()
-        sleep(0.2)
 
 
 def ui_thread_display_ticker_table(self):
