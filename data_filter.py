@@ -26,17 +26,21 @@ class DataFilter(object):
     def ticker_filter(self, data):
         self.con_ticker.acquire()
         if len(self.__ticker_list) == self.max_ticker_list:
-            print('max_ticker_list')
+            # print('max_ticker_list')
             self.con_ticker.wait()
-            print('ticker_list is not full')
+            # print('ticker_list is not full')
         self.lock_add_ticker.acquire()
-        print('product start')
         try:
-            self.__ticker_list.append(data['data'])
-            self.__ticker_list.sort(key=lambda d: d['timestamp'])
+            websocket_add_ticker_lock = threading.Lock()
+            websocket_add_ticker_lock.acquire()
+            try:
+                self.__ticker_list.append(data['data'])
+                self.__ticker_list.sort(key=lambda d: d['timestamp'])
+            finally:
+                websocket_add_ticker_lock.release()
         finally:
             self.lock_add_ticker.release()
-            print('add_ticker_list lock release')
+            # print('add_ticker_list lock release')
 
         self.con_ticker.notifyAll()
         self.con_ticker.release()
@@ -67,13 +71,28 @@ class DataFilter(object):
             self.websocket_filter_data(data)
 
     def ticker_add_data(self, data):
-        # TODO
-        # 行情应该有一个就行，最新的。要做比较
-        ticker = namedtuple('ticker', ['timestamp', 'buy', 'sell', 'high', 'low', 'last', 'vol'])
-        tmp = data['ticker']
-        t = ticker(float(data['date']), float(tmp['buy']), float(tmp['sell']), float(tmp['high']), float(tmp['low']),
-                   float(tmp['last']), float(tmp['vol']))
-        self.__ticker_list.append(t)
+        self.con_ticker.acquire()
+        if self.__ticker_list:
+            self.con_ticker.wait()
+
+        self.lock_add_ticker.acquire()
+        try:
+            rest_add_ticker_lock = threading.Lock()
+            rest_add_ticker_lock.acquire()
+            try:
+                temp = data['ticker']
+                for k, v in temp.items():
+                    temp[k] = float(v)
+                temp['timestamp'] = int(data['date']) * 1000
+                self.__ticker_list.append(temp)
+            finally:
+                rest_add_ticker_lock.release()
+        finally:
+            self.lock_add_ticker.release()
+
+        self.con_ticker.notifyAll()
+        self.con_ticker.release()
+        time.sleep(random.randint(1, 10) * 0.1)
 
     def depth_add_data(self, data):
         # TODO
@@ -100,18 +119,20 @@ class DataFilter(object):
     def get_ticker_list(self):
         self.con_ticker.acquire()
         if len(self.__ticker_list) == 0:
-            print('ticker_list empty, get wait')
+            # print('ticker_list empty, get wait')
             self.con_ticker.wait()
-            print('ticker_list have something')
+            # print('ticker_list have something')
         self.lock_get_ticker.acquire()
-        print('get food.')
+        # print('get food.')
         try:
+            for i in self.__ticker_list[::]:
+                print(i['timestamp'], sep=' ')
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
             return r_data
         finally:
             self.lock_get_ticker.release()
-            print('get_ticker_list lock release')
+            # print('get_ticker_list lock release')
 
             self.con_ticker.notifyAll()
             self.con_ticker.release()
