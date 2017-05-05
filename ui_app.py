@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-
+from ui_methed_test import *
+import threading
 
 
 class Ui_MainWindow(object):
@@ -13,34 +13,33 @@ class Ui_MainWindow(object):
         self.connect_button = QtWidgets.QPushButton(self.centralwidget)
         self.connect_button.setGeometry(QtCore.QRect(10, 30, 113, 32))
         self.connect_button.setObjectName("connect_button")
-        self.tricker_table = QtWidgets.QTableWidget(self.centralwidget)
-        self.tricker_table.setGeometry(QtCore.QRect(390, 10, 781, 81))
-        self.tricker_table.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.tricker_table.setAutoFillBackground(False)
+        self.ticker_table = QtWidgets.QTableWidget(self.centralwidget)
+        self.ticker_table.setGeometry(QtCore.QRect(390, 10, 781, 81))
+        self.ticker_table.setAutoFillBackground(False)
 
-        self.tricker_table.setLocale(QtCore.QLocale(QtCore.QLocale.Chinese, QtCore.QLocale.China))
+        self.ticker_table.setLocale(QtCore.QLocale(QtCore.QLocale.Chinese, QtCore.QLocale.China))
 
-        self.tricker_table.setObjectName("tricker_table")
-        self.tricker_table.setColumnCount(7)
-        self.tricker_table.setRowCount(1)
+        self.ticker_table.setObjectName("ticker_table")
+        self.ticker_table.setColumnCount(7)
+        self.ticker_table.setRowCount(1)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setVerticalHeaderItem(0, item)
+        self.ticker_table.setVerticalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(0, item)
+        self.ticker_table.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(1, item)
+        self.ticker_table.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(2, item)
+        self.ticker_table.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(3, item)
+        self.ticker_table.setHorizontalHeaderItem(3, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(4, item)
+        self.ticker_table.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(5, item)
+        self.ticker_table.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setHorizontalHeaderItem(6, item)
+        self.ticker_table.setHorizontalHeaderItem(6, item)
         item = QtWidgets.QTableWidgetItem()
-        self.tricker_table.setItem(0, 0, item)
+        self.ticker_table.setItem(0, 0, item)
         self.status_label = QtWidgets.QLabel(self.centralwidget)
 
         self.status_label.setGeometry(QtCore.QRect(130, 30, 241, 31))
@@ -60,31 +59,35 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.connect_button.clicked.connect(self.tricker_table.clear)
+        self.connect_button.clicked.connect(self.to_connect)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def to_connect(self):
+        ui_thread_websocket_start(self)
+        ui_change_status_label(self)
+        ui_thread_display_ticker_table(self)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.connect_button.setText(_translate("MainWindow", "连接"))
-        item = self.tricker_table.verticalHeaderItem(0)
+        item = self.ticker_table.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "BTC"))
-        item = self.tricker_table.horizontalHeaderItem(0)
+        item = self.ticker_table.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "时间"))
-        item = self.tricker_table.horizontalHeaderItem(1)
+        item = self.ticker_table.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "买"))
-        item = self.tricker_table.horizontalHeaderItem(2)
+        item = self.ticker_table.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "卖"))
-        item = self.tricker_table.horizontalHeaderItem(3)
+        item = self.ticker_table.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "最高"))
-        item = self.tricker_table.horizontalHeaderItem(4)
+        item = self.ticker_table.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "最低"))
-        item = self.tricker_table.horizontalHeaderItem(5)
+        item = self.ticker_table.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "最新"))
-        item = self.tricker_table.horizontalHeaderItem(6)
+        item = self.ticker_table.horizontalHeaderItem(6)
         item.setText(_translate("MainWindow", "成交量"))
-        __sortingEnabled = self.tricker_table.isSortingEnabled()
-        self.tricker_table.setSortingEnabled(False)
-        self.tricker_table.setSortingEnabled(__sortingEnabled)
+        __sortingEnabled = self.ticker_table.isSortingEnabled()
+        self.ticker_table.setSortingEnabled(False)
+        self.ticker_table.setSortingEnabled(__sortingEnabled)
         self.status_label.setText(_translate("MainWindow", "状态："))
-
