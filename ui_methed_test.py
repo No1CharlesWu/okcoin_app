@@ -28,7 +28,7 @@ def display_ticker_table(self):
     while True:
         d = get_global_data_filter().get_ticker_list()
         new_time = d['timestamp']
-        if new_time >= last:
+        if new_time >= last['timestamp']:
             last = d
             ok = True
             self.ticker_table.clearContents()
