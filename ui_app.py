@@ -3,9 +3,14 @@ from ui_methed_test import *
 import threading
 import random
 import datetime
+import time
 import data_filter
 
+
 class Ui_MainWindow(object):
+    ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0},
+              'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False,
+                         'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}}
     ticker_time = 0
     ticker_rest = True
 
@@ -43,7 +48,7 @@ class Ui_MainWindow(object):
         self.ticker_table.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
         self.ticker_table.setHorizontalHeaderItem(6, item)
-        item = QtWidgets.QTableWidgetItem()
+        item = QtWidgets.QTableWidgetItem('asdfghjk')
         self.ticker_table.setItem(0, 0, item)
         self.status_label = QtWidgets.QLabel(self.centralwidget)
 
@@ -71,9 +76,13 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def operate(self):
+        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        self.dateTimeEdit.setDateTime(QtCore.QDateTime.fromString(now_time, 'yyyy-MM-dd hh:mm:ss'))
         dt = datetime.datetime.now()
         now = dt.timestamp() * 1000
-        print('operate !!!!!!!!!', self.ticker_time, now)
+        self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
+        # self.status_label.setText('%f %f' % (now, now - self.ticker_time))
+        ui_change_ticker_table_color(self)
         if self.ticker_time:
             interval = int(now - self.ticker_time)
             if interval < 1000:

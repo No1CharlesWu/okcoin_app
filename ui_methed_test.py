@@ -23,32 +23,103 @@ def ui_thread_websocket_start(self):
     t.start()
 
 
+def ui_change_ticker_table_color(self):
+    t_timestamp = self.ticker_table.itemAt(0, 0)
+    t_buy = self.ticker_table.itemAt(0, 1)
+    t_sell = self.ticker_table.itemAt(0, 2)
+    t_high = self.ticker_table.itemAt(0, 3)
+    t_low = self.ticker_table.itemAt(0, 4)
+    t_last = self.ticker_table.itemAt(0, 5)
+    t_vol = self.ticker_table.itemAt(0, 6)
+
+    interval = datetime.datetime.now().timestamp() - self.ticker['update']['now_time']
+    if self.ticker['update']['timestamp_update'] and interval < 1:
+        t_timestamp.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_timestamp.setForeground(QtGui.QColor(0, 255, 0))
+    t_timestamp.setText(str(self.ticker['data']['timestamp']))
+    tmp0 = QtWidgets.QTableWidgetItem(t_timestamp)
+
+    if self.ticker['update']['buy_update'] and interval < 1:
+        t_buy.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_buy.setForeground(QtGui.QColor(0, 255, 0))
+    t_buy.setText(str(self.ticker['data']['buy']))
+    tmp1 = QtWidgets.QTableWidgetItem(t_buy)
+
+    if self.ticker['update']['sell_update'] and interval < 1:
+        t_sell.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_sell.setForeground(QtGui.QColor(0, 255, 0))
+    t_sell.setText(str(self.ticker['data']['sell']))
+    tmp2 = QtWidgets.QTableWidgetItem(t_sell)
+
+    if self.ticker['update']['high_update'] and interval < 1:
+        t_high.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_high.setForeground(QtGui.QColor(0, 255, 0))
+    t_high.setText(str(self.ticker['data']['high']))
+    tmp3 = QtWidgets.QTableWidgetItem(t_high)
+
+    if self.ticker['update']['low_update'] and interval < 1:
+        t_low.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_low.setForeground(QtGui.QColor(0, 255, 0))
+    t_low.setText(str(self.ticker['data']['low']))
+    tmp4 = QtWidgets.QTableWidgetItem(t_low)
+
+    if self.ticker['update']['last_update'] and interval < 1:
+        t_last.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_last.setForeground(QtGui.QColor(0, 255, 0))
+    t_last.setText(str(self.ticker['data']['last']))
+    tmp5 = QtWidgets.QTableWidgetItem(t_last)
+
+    if self.ticker['update']['vol_update'] and interval < 1:
+        t_vol.setForeground(QtGui.QColor(255, 0, 0))
+    else:
+        t_vol.setForeground(QtGui.QColor(0, 255, 0))
+    t_vol.setText(str(self.ticker['data']['vol']))
+    tmp6 = QtWidgets.QTableWidgetItem(t_vol)
+
+    self.ticker_table.clearContents()
+    self.ticker_table.setItem(0, 0, tmp0)
+    self.ticker_table.setItem(0, 1, tmp1)
+    self.ticker_table.setItem(0, 2, tmp2)
+    self.ticker_table.setItem(0, 3, tmp3)
+    self.ticker_table.setItem(0, 4, tmp4)
+    self.ticker_table.setItem(0, 5, tmp5)
+    self.ticker_table.setItem(0, 6, tmp6)
+    self.ticker_table.update()
+    sleep(0.2)
+
+
+def update_ticker_time(self, new):
+    temp = self.ticker['data']
+    d = dict()
+    d['now_time'] = datetime.datetime.now().timestamp()
+    d['timestamp_update'] = (temp['timestamp'] != new['timestamp'])
+    d['buy_update'] = (temp['buy'] != new['buy'])
+    d['sell_update'] = (temp['sell'] != new['sell'])
+    d['high_update'] = (temp['high'] != new['high'])
+    d['low_update'] = (temp['low'] != new['low'])
+    d['last_update'] = (temp['last'] != new['last'])
+    d['vol_update'] = (temp['vol'] != new['vol'])
+    # print('\ntemp:', temp, '\nnew:', new, '\nupdate:', d)
+    self.ticker['update'] = d
+    self.ticker['data'] = new
+
+
 def display_ticker_table(self):
-    last = {'timestamp': 0}
     while True:
-        d = get_global_data_filter().get_ticker_list()
-        new_time = d['timestamp']
-        if new_time >= last['timestamp']:
-            last = d
+        get_ticker = get_global_data_filter().get_ticker_list()
+        new_time = get_ticker['timestamp']
+        self.ticker_time = new_time
+        if new_time >= self.ticker['data']['timestamp']:
+            update_ticker_time(self, get_ticker)
             ok = True
-            self.ticker_table.clearContents()
-            tmp = QtWidgets.QTableWidgetItem(str(d['timestamp']))
-            self.ticker_table.setItem(0, 0, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['buy']))
-            self.ticker_table.setItem(0, 1, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['sell']))
-            self.ticker_table.setItem(0, 2, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['high']))
-            self.ticker_table.setItem(0, 3, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['low']))
-            self.ticker_table.setItem(0, 4, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['last']))
-            self.ticker_table.setItem(0, 5, tmp)
-            tmp = QtWidgets.QTableWidgetItem(str(d['vol']))
-            self.ticker_table.setItem(0, 6, tmp)
-            self.ticker_table.update()
-            sleep(0.2)
-            self.ticker_time = new_time
+            print(get_ticker)
+            ui_change_ticker_table_color(self)
             self.ticker_rest = True
         else:
             ok = False
