@@ -72,25 +72,29 @@ class Ui_MainWindow(object):
         self.connect_button.clicked.connect(self.to_connect)
 
         self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.operate)
+        self.timer.timeout.connect(self.change_time)
+        self.ticker_timer = QtCore.QTimer()
+        self.ticker_timer.timeout.connect(self.operate)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def operate(self):
+    def change_time(self):
+        dt = datetime.datetime.now()
+        self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
+        ui_change_ticker_table(self)
         now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         self.dateTimeEdit.setDateTime(QtCore.QDateTime.fromString(now_time, 'yyyy-MM-dd hh:mm:ss'))
+
+    def operate(self):
         dt = datetime.datetime.now()
         now = dt.timestamp() * 1000
-        self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
-        # self.status_label.setText('%f %f' % (now, now - self.ticker_time))
-        ui_change_ticker_table_color(self)
         if self.ticker_time:
             interval = int(now - self.ticker_time)
             if interval < 1000:
-                self.timer.stop()
-                self.timer.start(1000 - interval)
+                self.ticker_timer.stop()
+                self.ticker_timer.start(1000 - interval)
             else:
-                self.timer.stop()
-                self.timer.start(1000)
+                self.ticker_timer.stop()
+                self.ticker_timer.start(1000)
                 if self.ticker_rest:
                     print('send rest')
                     ui_thread_rest_ticker(self)
@@ -98,6 +102,7 @@ class Ui_MainWindow(object):
 
     def to_connect(self):
         self.timer.start(1000)
+        self.ticker_timer.start(1000)
         ui_thread_websocket_start(self)
         ui_change_status_label(self)
         ui_thread_display_ticker_table(self)
