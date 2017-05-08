@@ -9,7 +9,6 @@ class DataFilter(object):
     lock_add_ticker = threading.Lock()
     lock_get_ticker = threading.Lock()
     con_ticker = threading.Condition()
-    max_ticker_list = 10
 
     def __init__(self):
         self.__ticker_list = list()
@@ -17,13 +16,14 @@ class DataFilter(object):
         self.__depth_list_bids = list()
         self.__trades_list = list()
         self.__kline_list = list()
+        self.max_ticker_list = 50
 
     def __new__(cls, *args, **kwargs):
         if DataFilter.__instance is None:
             DataFilter.__instance = object.__new__(cls, *args, **kwargs)
         return DataFilter.__instance
 
-    def ticker_filter(self, data):
+    def websocket_ticker_filter(self, data):
         self.con_ticker.acquire()
         if len(self.__ticker_list) == self.max_ticker_list:
             # print('max_ticker_list')
@@ -46,10 +46,10 @@ class DataFilter(object):
         self.con_ticker.release()
         time.sleep(random.randint(1, 10) * 0.1)
 
-    def websocket_filter_data(self, data):
+    def websocket_add_data(self, data):
         channel = data['channel']
         if 'ticker' in channel:
-            t = threading.Thread(target=self.ticker_filter, name='ticker_filter', args=(data,))
+            t = threading.Thread(target=self.websocket_ticker_filter, name='ticker_filter', args=(data,))
             t.start()
         elif 'depth' in channel:
             # TODO
@@ -66,11 +66,7 @@ class DataFilter(object):
             # self.__kline_list.sort(key=lambda l: l[0])
             pass
 
-    def add_data(self, data, interface):
-        if interface == 'websocket':
-            self.websocket_filter_data(data)
-
-    def ticker_add_data(self, data):
+    def rest_add_data_for_ticker(self, data):
         self.con_ticker.acquire()
         if self.__ticker_list:
             self.con_ticker.wait()

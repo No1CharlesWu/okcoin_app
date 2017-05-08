@@ -24,9 +24,14 @@ def rest_ticker(symbol):
     :return: 
     """
     # print('现货行情 ticker: symbol=%s' % symbol)
-    data = okcoinSpot.ticker(symbol)
+    try:
+        data = okcoinSpot.ticker(symbol)
+    except Exception as e:
+        print(e)
+        return
+
     # print(strftime("%H:%M:%S"), data, type(data))
-    global_data_filter.ticker_add_data(data)
+    global_data_filter.rest_add_data_for_ticker(data)
 
 
 def rest_depth(**kwargs):

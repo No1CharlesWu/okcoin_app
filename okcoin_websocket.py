@@ -53,7 +53,7 @@ def on_message(self, evt):
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
     # print(datetime.now(), data)
-    global_data_filter.add_data(data, 'websocket')
+    global_data_filter.websocket_add_data(data)
 
 
 def on_error(self, error):
@@ -72,10 +72,7 @@ def websocket_start():
     secret_key = '7C1DDC1745C93B87BE1643A689938459'
     websocket.enableTrace(True)
     host = url
-    ws = websocket.WebSocketApp(host,
-                                on_message=on_message,
-                                on_error=on_error,
-                                on_close=on_close)
+    ws = websocket.WebSocketApp(host, on_message=on_message, on_error=on_error, on_close=on_close)
     ws.on_open = on_open
     ws.run_forever(ping_interval=20)
 
