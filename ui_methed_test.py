@@ -15,7 +15,7 @@ import random
 
 
 def ui_change_status_label(self):
-    self.status_label.setText('sb')
+    pass
 
 
 def ui_thread_websocket_start(self):
