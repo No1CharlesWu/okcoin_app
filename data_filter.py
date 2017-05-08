@@ -150,10 +150,6 @@ class DataFilter(object):
     def get_kline_list(self):
         return self.__kline_list
 
-
-global global_data_filter
 global_data_filter = DataFilter()
 
 
-def get_global_data_filter():
-    return global_data_filter

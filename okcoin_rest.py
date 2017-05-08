@@ -1,11 +1,5 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-# encoding: utf-8
-# 客户端调用，用于查看API返回结果
-
 from okcoin_spot_API import OKCoinSpot
-from time import strftime
-from data_filter import get_global_data_filter
+from data_filter import global_data_filter
 
 # 初始化api_key，secret_key,url
 api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
@@ -16,7 +10,7 @@ okcoin_rest_url = 'www.okcoin.cn'
 okcoinSpot = OKCoinSpot(okcoin_rest_url, api_key, secret_key)
 
 
-def test_rest_ticker(symbol):
+def rest_ticker(symbol):
     """
     date: 返回数据时服务器时间
     buy: 买一价
@@ -32,10 +26,10 @@ def test_rest_ticker(symbol):
     # print('现货行情 ticker: symbol=%s' % symbol)
     data = okcoinSpot.ticker(symbol)
     # print(strftime("%H:%M:%S"), data, type(data))
-    get_global_data_filter().ticker_add_data(data)
+    global_data_filter.ticker_add_data(data)
 
 
-def test_rest_depth(**kwargs):
+def rest_depth(**kwargs):
     """
     asks :卖方深度
     bids :买方深度
@@ -51,10 +45,10 @@ def test_rest_depth(**kwargs):
     print('现货深度 depth: symbol=%s size=%s merge=%s' % (symbol, size, merge))
     data = okcoinSpot.depth(**kwargs)
     print(okcoinSpot.depth(**kwargs))
-    get_global_data_filter().depth_add_data(data)
+    global_data_filter.depth_add_data(data)
 
 
-def test_rest_trades(**kwargs):
+def rest_trades(**kwargs):
     """
     date:交易时间
     date_ms:交易时间(ms)
@@ -72,10 +66,10 @@ def test_rest_trades(**kwargs):
     print('现货历史交易信息 trades: symbol=%s since=%s' % (symbol, since))
     data = okcoinSpot.trades(**kwargs)
     print(okcoinSpot.trades(**kwargs))
-    get_global_data_filter().trades_add_data(data)
+    global_data_filter.trades_add_data(data)
 
 
-def test_rest_kline(*, symbol, type, **kwargs):
+def rest_kline(*, symbol, type, **kwargs):
     """
     1417536000000,	时间戳
     2370.16,	开
@@ -99,21 +93,21 @@ def test_rest_kline(*, symbol, type, **kwargs):
     print('现货K线数据 kline: symbol=%s type=%s size=%s since=%s' % (symbol, type, size, since))
     data = okcoinSpot.kline(symbol=symbol, type=type)
     print(okcoinSpot.kline(symbol=symbol, type=type))
-    get_global_data_filter().kline_add_data(data)
+    global_data_filter.kline_add_data(data)
 
 
 if __name__ == '__main__':
     for i in range(10):
-        test_rest_ticker('btc_cny')
-    print(get_global_data_filter().get_ticker_list())
+        rest_ticker('btc_cny')
+    print(global_data_filter.get_ticker_list())
 
     for i in range(10):
-        test_rest_depth(symbol='btc_cny', size=3)
-    print(get_global_data_filter().get_depth_list_asks())
-    print(get_global_data_filter().get_depth_list_bids())
+        rest_depth(symbol='btc_cny', size=3)
+    print(global_data_filter.get_depth_list_asks())
+    print(global_data_filter.get_depth_list_bids())
     for i in range(10):
-        test_rest_trades()
-    print(get_global_data_filter().get_trades_list())
+        rest_trades()
+    print(global_data_filter.get_trades_list())
     for i in range(10):
-        test_rest_kline(symbol='btc_cny', type='1min')
-    print(get_global_data_filter().get_kline_list())
+        rest_kline(symbol='btc_cny', type='1min')
+    print(global_data_filter.get_kline_list())

@@ -9,8 +9,8 @@ import datetime
 from time import sleep
 import threading
 from PyQt5 import QtCore, QtGui, QtWidgets
-from data_filter import get_global_data_filter
-import okcoin_rest_test
+from data_filter import global_data_filter
+import okcoin_rest
 import random
 
 
@@ -111,7 +111,7 @@ def update_ticker_time(self, new):
 
 def display_ticker_table(self):
     while True:
-        get_ticker = get_global_data_filter().get_ticker_list()
+        get_ticker = global_data_filter.get_ticker_list()
         new_time = get_ticker['timestamp']
         self.ticker_time = new_time
         if new_time >= self.ticker['data']['timestamp']:
@@ -130,7 +130,7 @@ def ui_thread_display_ticker_table(self):
 
 
 def ui_thread_rest_ticker(self):
-    t = threading.Thread(target=okcoin_rest_test.test_rest_ticker, name='rest_ticker', args=('btc_cny',))
+    t = threading.Thread(target=okcoin_rest.rest_ticker, name='rest_ticker', args=('btc_cny',))
     t.start()
 
 

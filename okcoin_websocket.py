@@ -2,7 +2,7 @@ import websocket
 import zlib
 import json
 from datetime import datetime
-from data_filter import get_global_data_filter
+from data_filter import global_data_filter
 
 
 def websocket_ticker(symbol='btc', event='addChannel', binary=True):
@@ -53,7 +53,7 @@ def on_message(self, evt):
         evt = str(inflate(evt), 'utf-8')  # data decompress
     data = json.loads(evt)[0]
     # print(datetime.now(), data)
-    get_global_data_filter().add_data(data, 'websocket')
+    global_data_filter.add_data(data, 'websocket')
 
 
 def on_error(self, error):
