@@ -91,7 +91,6 @@ def ui_change_ticker_table(self):
     self.ticker_table.setItem(0, 5, tmp5)
     self.ticker_table.setItem(0, 6, tmp6)
     self.ticker_table.update()
-    sleep(0.2)
 
 
 def update_ticker_time(self, new):
@@ -110,20 +109,28 @@ def update_ticker_time(self, new):
 
 
 def update_ticker_table(self):
+    a = datetime.datetime.now().timestamp()
     get_ticker = global_data_filter.get_ticker_list()
     if get_ticker:
         self.ticker['last_time'] = datetime.datetime.now().timestamp()
         if get_ticker['timestamp'] > self.ticker['data']['timestamp']:
             update_ticker_time(self, get_ticker)
             self.ticker['send_rest'] = True
+            b = datetime.datetime.now().timestamp()
+            self.status_label.setText(str(b - a))
+            # self.status_label.setText(str(self.ticker['data']['timestamp']))
             ui_change_ticker_table(self)
+            print('1', self.ticker['update']['timestamp_update'])
+        else:
+            print('2')
     else:
+        print(datetime.datetime.now().timestamp(), self.ticker['last_time'])
         if self.ticker['send_rest'] and datetime.datetime.now().timestamp() - self.ticker['last_time'] > 1:
             print('ticker_list empty. send rest.')
             ui_thread_rest_ticker(self)
             self.ticker['send_rest'] = False
         else:
-            print('等着~')
+            print('等着~', self.ticker['send_rest'])
 
 
 def ui_thread_rest_ticker(self):

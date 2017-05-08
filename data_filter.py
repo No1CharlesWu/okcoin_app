@@ -55,6 +55,7 @@ class DataFilter(object):
                 temp[k] = float(v)
             temp['timestamp'] = int(data['date']) * 1000
             self.__ticker_list.append(temp)
+            print('rest add data')
         finally:
             self.lock_ticker_list.release()
 
@@ -87,7 +88,7 @@ class DataFilter(object):
         try:
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
-            print('rest data added.')
+            print('get data added.')
             return r_data
         finally:
             self.lock_ticker_list.release()
