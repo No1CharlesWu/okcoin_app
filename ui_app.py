@@ -10,9 +10,8 @@ import data_filter
 class Ui_MainWindow(object):
     ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0},
               'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False,
-                         'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}}
-    ticker_time = 0
-    ticker_rest = True
+                         'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False},
+              'send_rest': True}
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -74,38 +73,23 @@ class Ui_MainWindow(object):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.change_time)
         self.ticker_timer = QtCore.QTimer()
-        self.ticker_timer.timeout.connect(self.operate)
+        self.ticker_timer.timeout.connect(self.change_ticker_table)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def change_time(self):
         dt = datetime.datetime.now()
-        self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
-        ui_change_ticker_table(self)
+        # self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
+        self.status_label.setText(str(dt.timestamp()))
         now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         self.dateTimeEdit.setDateTime(QtCore.QDateTime.fromString(now_time, 'yyyy-MM-dd hh:mm:ss'))
 
-    def operate(self):
-        dt = datetime.datetime.now()
-        now = dt.timestamp() * 1000
-        if self.ticker_time:
-            interval = int(now - self.ticker_time)
-            if interval < 1000:
-                self.ticker_timer.stop()
-                self.ticker_timer.start(1000 - interval)
-            else:
-                self.ticker_timer.stop()
-                self.ticker_timer.start(1000)
-                if self.ticker_rest:
-                    print('send rest')
-                    ui_thread_rest_ticker(self)
-                    self.ticker_rest = False
+    def change_ticker_table(self):
+        update_ticker_table(self)
 
     def to_connect(self):
         self.timer.start(1000)
         self.ticker_timer.start(1000)
         ui_thread_websocket_start(self)
-        ui_change_status_label(self)
-        ui_thread_display_ticker_table(self)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

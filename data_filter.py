@@ -1,14 +1,9 @@
 from collections import namedtuple
 import threading
-import time
-import random
 
 
 class DataFilter(object):
     __instance = None
-    lock_add_ticker = threading.Lock()
-    lock_get_ticker = threading.Lock()
-    con_ticker = threading.Condition()
 
     def __init__(self):
         self.__ticker_list = list()
@@ -16,35 +11,12 @@ class DataFilter(object):
         self.__depth_list_bids = list()
         self.__trades_list = list()
         self.__kline_list = list()
-        self.max_ticker_list = 50
+        self.lock_ticker_list = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if DataFilter.__instance is None:
             DataFilter.__instance = object.__new__(cls, *args, **kwargs)
         return DataFilter.__instance
-
-    def websocket_ticker_filter(self, data):
-        self.con_ticker.acquire()
-        if len(self.__ticker_list) == self.max_ticker_list:
-            # print('max_ticker_list')
-            self.con_ticker.wait()
-            # print('ticker_list is not full')
-        self.lock_add_ticker.acquire()
-        try:
-            websocket_add_ticker_lock = threading.Lock()
-            websocket_add_ticker_lock.acquire()
-            try:
-                self.__ticker_list.append(data['data'])
-                self.__ticker_list.sort(key=lambda d: d['timestamp'])
-            finally:
-                websocket_add_ticker_lock.release()
-        finally:
-            self.lock_add_ticker.release()
-            # print('add_ticker_list lock release')
-
-        self.con_ticker.notifyAll()
-        self.con_ticker.release()
-        time.sleep(random.randint(1, 10) * 0.1)
 
     def websocket_add_data(self, data):
         channel = data['channel']
@@ -66,29 +38,26 @@ class DataFilter(object):
             # self.__kline_list.sort(key=lambda l: l[0])
             pass
 
-    def rest_add_data_for_ticker(self, data):
-        self.con_ticker.acquire()
-        if self.__ticker_list:
-            self.con_ticker.wait()
-
-        self.lock_add_ticker.acquire()
+    def websocket_ticker_filter(self, data):
+        self.lock_ticker_list.acquire()
         try:
-            rest_add_ticker_lock = threading.Lock()
-            rest_add_ticker_lock.acquire()
-            try:
-                temp = data['ticker']
-                for k, v in temp.items():
-                    temp[k] = float(v)
-                temp['timestamp'] = int(data['date']) * 1000
-                self.__ticker_list.append(temp)
-            finally:
-                rest_add_ticker_lock.release()
+            self.__ticker_list.append(data['data'])
+            self.__ticker_list.sort(key=lambda d: d['timestamp'])
+            print(data['data'])
         finally:
-            self.lock_add_ticker.release()
+            self.lock_ticker_list.release()
 
-        self.con_ticker.notifyAll()
-        self.con_ticker.release()
-        time.sleep(random.randint(1, 10) * 0.1)
+    def rest_add_data_for_ticker(self, data):
+        self.lock_ticker_list.acquire()
+        try:
+            temp = data['ticker']
+            for k, v in temp.items():
+                temp[k] = float(v)
+            temp['timestamp'] = int(data['date']) * 1000
+            print(temp)
+            self.__ticker_list.append(temp)
+        finally:
+            self.lock_ticker_list.release()
 
     def depth_add_data(self, data):
         # TODO
@@ -113,26 +82,18 @@ class DataFilter(object):
             self.__kline_list.append(tmp)
 
     def get_ticker_list(self):
-        self.con_ticker.acquire()
         if len(self.__ticker_list) == 0:
-            # print('ticker_list empty, get wait')
-            self.con_ticker.wait()
-            # print('ticker_list have something')
-        self.lock_get_ticker.acquire()
-        # print('get food.')
+            # TODO
+            return None
+        self.lock_ticker_list.acquire()
         try:
-            for i in self.__ticker_list[::]:
-                print(i['timestamp'], sep=' ')
+            # for i in self.__ticker_list[::]:
+            #     print(i['timestamp'], sep=' ')
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
             return r_data
         finally:
-            self.lock_get_ticker.release()
-            # print('get_ticker_list lock release')
-
-            self.con_ticker.notifyAll()
-            self.con_ticker.release()
-            time.sleep(random.randint(1, 10) * 0.1)
+            self.lock_ticker_list.release()
 
     def get_depth_list_asks(self):
         return self.__depth_list_asks
@@ -146,6 +107,5 @@ class DataFilter(object):
     def get_kline_list(self):
         return self.__kline_list
 
+
 global_data_filter = DataFilter()
-
-

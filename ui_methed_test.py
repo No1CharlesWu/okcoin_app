@@ -109,29 +109,26 @@ def update_ticker_time(self, new):
     self.ticker['data'] = new
 
 
-def display_ticker_table(self):
-    while True:
-        get_ticker = global_data_filter.get_ticker_list()
-        new_time = get_ticker['timestamp']
-        self.ticker_time = new_time
-        if new_time >= self.ticker['data']['timestamp']:
+def update_ticker_table(self):
+    get_ticker = global_data_filter.get_ticker_list()
+    if get_ticker:
+        if get_ticker['timestamp'] > self.ticker['data']['timestamp']:
             update_ticker_time(self, get_ticker)
-            ok = True
+            self.ticker['send_rest'] = True
             ui_change_ticker_table(self)
-            self.ticker_rest = True
+    else:
+        if self.ticker['send_rest']:
+            print('ticker_list empty. send rest.')
+            ui_thread_rest_ticker(self)
+            self.ticker['send_rest'] = False
         else:
-            ok = False
-        print('ui', ok, new_time)
-
-
-def ui_thread_display_ticker_table(self):
-    t = threading.Thread(target=display_ticker_table, name='display_ticker_table', args=(self,))
-    t.start()
+            print('等着~')
 
 
 def ui_thread_rest_ticker(self):
     t = threading.Thread(target=okcoin_rest.rest_ticker, name='rest_ticker', args=('btc_cny',))
     t.start()
+    print('rest data added.')
 
 
 if __name__ == '__main__':
