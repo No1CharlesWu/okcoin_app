@@ -11,7 +11,7 @@ class Ui_MainWindow(object):
     ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0},
               'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False,
                          'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False},
-              'send_rest': True}
+              'send_rest': True, 'last_time': 0}
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")

@@ -43,7 +43,7 @@ class DataFilter(object):
         try:
             self.__ticker_list.append(data['data'])
             self.__ticker_list.sort(key=lambda d: d['timestamp'])
-            print(data['data'])
+            print('websocket add data')
         finally:
             self.lock_ticker_list.release()
 
@@ -54,7 +54,6 @@ class DataFilter(object):
             for k, v in temp.items():
                 temp[k] = float(v)
             temp['timestamp'] = int(data['date']) * 1000
-            print(temp)
             self.__ticker_list.append(temp)
         finally:
             self.lock_ticker_list.release()
@@ -83,14 +82,12 @@ class DataFilter(object):
 
     def get_ticker_list(self):
         if len(self.__ticker_list) == 0:
-            # TODO
             return None
         self.lock_ticker_list.acquire()
         try:
-            # for i in self.__ticker_list[::]:
-            #     print(i['timestamp'], sep=' ')
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
+            print('rest data added.')
             return r_data
         finally:
             self.lock_ticker_list.release()
