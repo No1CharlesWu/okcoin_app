@@ -27,7 +27,7 @@ def rest_ticker(symbol):
     try:
         data = okcoinSpot.ticker(symbol)
     except Exception as e:
-        print(e)
+        print('Exception rest_ticker:', e)
         return
 
     # print(strftime("%H:%M:%S"), data, type(data))
@@ -44,13 +44,18 @@ def rest_depth(**kwargs):
     :param kwargs: 
     :return: 
     """
-    symbol = kwargs['symbol'] if 'symbol' in kwargs else 'btc_cny'
-    size = kwargs['size'] if 'size' in kwargs else 200
-    merge = kwargs['merge'] if 'merge' in kwargs else ''
-    print('现货深度 depth: symbol=%s size=%s merge=%s' % (symbol, size, merge))
-    data = okcoinSpot.depth(**kwargs)
-    print(okcoinSpot.depth(**kwargs))
-    global_data_filter.depth_add_data(data)
+    # symbol = kwargs['symbol'] if 'symbol' in kwargs else 'btc_cny'
+    # size = kwargs['size'] if 'size' in kwargs else 200
+    # merge = kwargs['merge'] if 'merge' in kwargs else ''
+    # print('现货深度 depth: symbol=%s size=%s merge=%s' % (symbol, size, merge))
+    try:
+        data = okcoinSpot.depth(**kwargs)
+    except Exception as e:
+        print('Exception rest_depth:', e)
+        return
+
+    # print(okcoinSpot.depth(**kwargs))
+    global_data_filter.rest_add_data_for_depth(data)
 
 
 def rest_trades(**kwargs):
