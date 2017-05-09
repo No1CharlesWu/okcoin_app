@@ -1,6 +1,6 @@
 from okcoin_spot_API import OKCoinSpot
 from data_filter import global_data_filter
-
+import time
 # 初始化api_key，secret_key,url
 api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
 secret_key = '7C1DDC1745C93B87BE1643A689938459'
@@ -53,7 +53,6 @@ def rest_depth(**kwargs):
     except Exception as e:
         print('Exception rest_depth:', e)
         return
-
     # print(okcoinSpot.depth(**kwargs))
     global_data_filter.rest_add_data_for_depth(data)
 
@@ -107,17 +106,18 @@ def rest_kline(*, symbol, type, **kwargs):
 
 
 if __name__ == '__main__':
-    for i in range(10):
-        rest_ticker('btc_cny')
-    print(global_data_filter.get_ticker_list())
+    # for i in range(10):
+    #     rest_ticker('btc_cny')
+    # print(global_data_filter.get_ticker_list())
 
-    for i in range(10):
-        rest_depth(symbol='btc_cny', size=3)
-    print(global_data_filter.get_depth_list_asks())
-    print(global_data_filter.get_depth_list_bids())
-    for i in range(10):
-        rest_trades()
-    print(global_data_filter.get_trades_list())
-    for i in range(10):
-        rest_kline(symbol='btc_cny', type='1min')
-    print(global_data_filter.get_kline_list())
+    for i in range(1000):
+        print(i)
+        rest_depth(symbol='btc_cny', size=20)
+        time.sleep(1)
+
+    # for i in range(10):
+    #     rest_trades()
+    # print(global_data_filter.get_trades_list())
+    # for i in range(10):
+    #     rest_kline(symbol='btc_cny', type='1min')
+    # print(global_data_filter.get_kline_list())

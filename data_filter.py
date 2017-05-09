@@ -1,5 +1,6 @@
 from collections import namedtuple
 import threading
+import datetime
 
 
 class DataFilter(object):
@@ -7,11 +8,11 @@ class DataFilter(object):
 
     def __init__(self):
         self.__ticker_list = list()
-        self.__depth_list_asks = list()
-        self.__depth_list_bids = list()
+        self.__depth_list = list()
         self.__trades_list = list()
         self.__kline_list = list()
         self.lock_ticker_list = threading.Lock()
+        self.lock_depth_list = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if DataFilter.__instance is None:
@@ -24,9 +25,8 @@ class DataFilter(object):
             t = threading.Thread(target=self.websocket_ticker_filter, name='ticker_filter', args=(data,))
             t.start()
         elif 'depth' in channel:
-            # TODO
-            # self.__depth_list.append(data['data'])
-            pass
+            d = threading.Thread(target=self.websocket_depth_filter, name='depth_filter', args=(data,))
+            d.start()
         elif 'trades' in channel:
             # TODO
             # self.__trades_list.extend(data['data'])
@@ -42,8 +42,7 @@ class DataFilter(object):
         self.lock_ticker_list.acquire()
         try:
             self.__ticker_list.append(data['data'])
-            self.__ticker_list.sort(key=lambda d: d['timestamp'])
-            print('websocket add data')
+            print('ticker: websocket add data')
         finally:
             self.lock_ticker_list.release()
 
@@ -55,15 +54,61 @@ class DataFilter(object):
                 temp[k] = float(v)
             temp['timestamp'] = int(data['date']) * 1000
             self.__ticker_list.append(temp)
-            print('rest add data')
+            print('ticker: rest add data')
         finally:
             self.lock_ticker_list.release()
 
-    def depth_add_data(self, data):
-        # TODO
-        # 深度应该合并。读取200条，websocket可能做增量控制比较好。或者有可能是数据直接刷新
-        self.__depth_list_asks.extend(data['asks'])
-        self.__depth_list_bids.extend(data['bids'])
+    def get_ticker_list(self):
+        if len(self.__ticker_list) == 0:
+            return None
+        self.lock_ticker_list.acquire()
+        try:
+            self.__ticker_list.sort(key=lambda d: d['timestamp'])
+            r_data = self.__ticker_list.pop()
+            self.__ticker_list.clear()
+            print('ticker: get data added.')
+            return r_data
+        finally:
+            self.lock_ticker_list.release()
+
+    def websocket_depth_filter(self, data):
+        self.lock_depth_list.acquire()
+        try:
+            # print('depth: websocket add data')
+            temp = data['data']
+            for i, l in enumerate(temp['asks']):
+                temp['ask'][i][0] = float(l[0])
+                temp['ask'][i][1] = float(l[1])
+            for i, l in enumerate(temp['bids']):
+                temp['bids'][i][0] = float(l[0])
+                temp['bids'][i][1] = float(l[1])
+            # print(datetime.datetime.now(), datetime.datetime.fromtimestamp(data['data']['timestamp']/1000))
+            self.__depth_list.append(temp)
+            print('depth: websocket add data')
+        finally:
+            self.lock_depth_list.release()
+
+    def rest_add_data_for_depth(self, data):
+        self.lock_depth_list.acquire()
+        try:
+            data['timestamp'] = datetime.datetime.now().timestamp() * 1000
+            self.__depth_list.append(data)
+            print('depth: rest add data')
+        finally:
+            self.lock_depth_list.release()
+
+    def get_depth_list(self):
+        if len(self.__depth_list) == 0:
+            return None
+        self.lock_depth_list.acquire()
+        try:
+            self.__depth_list.sort(key=lambda d: d['timestamp'])
+            r_data = self.__depth_list.pop()
+            self.__depth_list.clear()
+            print('depth: get data added.')
+            return r_data
+        finally:
+            self.lock_depth_list.release()
 
     def trades_add_data(self, data):
         # TODO
@@ -80,24 +125,6 @@ class DataFilter(object):
         for i, l in enumerate(data):
             tmp = kline(l[0], l[1], l[2], l[3], l[4], l[5])
             self.__kline_list.append(tmp)
-
-    def get_ticker_list(self):
-        if len(self.__ticker_list) == 0:
-            return None
-        self.lock_ticker_list.acquire()
-        try:
-            r_data = self.__ticker_list.pop()
-            self.__ticker_list.clear()
-            print('get data added.')
-            return r_data
-        finally:
-            self.lock_ticker_list.release()
-
-    def get_depth_list_asks(self):
-        return self.__depth_list_asks
-
-    def get_depth_list_bids(self):
-        return self.__depth_list_bids
 
     def get_trades_list(self):
         return self.__trades_list
