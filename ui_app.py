@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.ticker_table.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
         self.ticker_table.setHorizontalHeaderItem(6, item)
-        item = QtWidgets.QTableWidgetItem('asdfghjk')
+        item = QtWidgets.QTableWidgetItem()
         self.ticker_table.setItem(0, 0, item)
         self.status_label = QtWidgets.QLabel(self.centralwidget)
 
@@ -72,27 +72,18 @@ class Ui_MainWindow(object):
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.change_time)
-        self.ticker_timer = QtCore.QTimer()
-        self.ticker_timer.timeout.connect(self.change_ticker_table)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def change_time(self):
-        pass
-        # dt = datetime.datetime.now()
-        # self.status_label.setText(dt.strftime('%a, %b %d %H:%M:%S'))
-        # self.status_label.setText(str(dt.timestamp()))
-        # now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        # self.dateTimeEdit.setDateTime(QtCore.QDateTime.fromString(now_time, 'yyyy-MM-dd hh:mm:ss'))
+        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        self.dateTimeEdit.setDateTime(QtCore.QDateTime.fromString(now_time, 'yyyy-MM-dd hh:mm:ss'))
+        self.status_label.setText(str(datetime.datetime.now()))
 
-    def change_ticker_table(self):
-        # print(datetime.datetime.now().timestamp())
-        # self.status_label.setText(str(datetime.datetime.now().timestamp()))
         print('触发时钟')
         update_ticker_table(self)
 
     def to_connect(self):
         self.timer.start(1000)
-        self.ticker_timer.start(1000)
         ui_thread_websocket_start(self)
 
     def retranslateUi(self, MainWindow):
