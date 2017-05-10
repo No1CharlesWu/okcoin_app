@@ -1,6 +1,7 @@
 from okcoin_spot_API import OKCoinSpot
 from data_filter import global_data_filter
 import time
+
 # 初始化api_key，secret_key,url
 api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
 secret_key = '7C1DDC1745C93B87BE1643A689938459'
@@ -70,12 +71,21 @@ def rest_trades(**kwargs):
     :param kwargs: 
     :return: 
     """
-    symbol = kwargs['symbol'] if 'symbol' in kwargs else 'btc_cny'
-    since = kwargs['since'] if 'since' in kwargs else ''
-    print('现货历史交易信息 trades: symbol=%s since=%s' % (symbol, since))
-    data = okcoinSpot.trades(**kwargs)
-    print(okcoinSpot.trades(**kwargs))
-    global_data_filter.trades_add_data(data)
+    # symbol = kwargs['symbol'] if 'symbol' in kwargs else 'btc_cny'
+    # since = kwargs['since'] if 'since' in kwargs else ''
+    # print('现货历史交易信息 trades: symbol=%s since=%s' % (symbol, since))
+    try:
+        data = okcoinSpot.trades(**kwargs)
+    except Exception as e:
+        print('Exception rest_trades', e)
+        return
+    # print(okcoinSpot.trades(**kwargs))
+    print('-----------------------------------------------------------------------')
+    global_data_filter.rest_add_data_for_trades(data)
+    # print('--------------------------------------------')
+    # print('--------------------------------------------')
+    # for j, d in enumerate(data):
+    #     print(j, d)
 
 
 def rest_kline(*, symbol, type, **kwargs):
@@ -110,14 +120,16 @@ if __name__ == '__main__':
     #     rest_ticker('btc_cny')
     # print(global_data_filter.get_ticker_list())
 
+    # for i in range(1000):
+    #     print(i)
+    #     rest_depth(symbol='btc_cny', size=20)
+    #     print(global_data_filter.get_depth_list())
+    #     time.sleep(1)
     for i in range(1000):
-        print(i)
-        rest_depth(symbol='btc_cny', size=20)
-        print(global_data_filter.get_depth_list())
+        rest_trades()
+        for j, d in enumerate(global_data_filter.get_trades_list()):
+            print(j, d)
         time.sleep(1)
-    # for i in range(10):
-    #     rest_trades()
-    # print(global_data_filter.get_trades_list())
-    # for i in range(10):
-    #     rest_kline(symbol='btc_cny', type='1min')
-    # print(global_data_filter.get_kline_list())
+        # for i in range(10):
+        #     rest_kline(symbol='btc_cny', type='1min')
+        # print(global_data_filter.get_kline_list())

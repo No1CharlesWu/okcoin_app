@@ -13,6 +13,7 @@ class DataFilter(object):
         self.__kline_list = list()
         self.lock_ticker_list = threading.Lock()
         self.lock_depth_list = threading.Lock()
+        self.lock_trades_list = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if DataFilter.__instance is None:
@@ -28,10 +29,8 @@ class DataFilter(object):
             d = threading.Thread(target=self.websocket_depth_filter, name='depth_filter', args=(data,))
             d.start()
         elif 'trades' in channel:
-            # TODO
-            # self.__trades_list.extend(data['data'])
-            # self.__trades_list.sort(key=lambda l: l[0])
-            pass
+            tr = threading.Thread(target=self.websocket_trades_filter, name='trades_filter', args=(data,))
+            tr.start()
         elif 'kline' in channel:
             # TODO
             # self.__kline_list.extend(data['data'])
@@ -66,7 +65,7 @@ class DataFilter(object):
             self.__ticker_list.sort(key=lambda d: d['timestamp'])
             r_data = self.__ticker_list.pop()
             self.__ticker_list.clear()
-            print('ticker: get data added.')
+            print('ticker: get data.')
             return r_data
         finally:
             self.lock_ticker_list.release()
@@ -105,18 +104,65 @@ class DataFilter(object):
             self.__depth_list.sort(key=lambda d: d['timestamp'])
             r_data = self.__depth_list.pop()
             self.__depth_list.clear()
-            print('depth: get data added.')
+            print('depth: get data.')
             return r_data
         finally:
             self.lock_depth_list.release()
 
-    def trades_add_data(self, data):
-        # TODO
-        # 交易记录应该合并才对。
-        trades = namedtuple('trades', ['tid', 'price', 'amount', 'timestamp', 'type'])
-        for i, d in enumerate(data):
-            tmp = trades(int(d['tid']), float(d['price']), float(d['amount']), int(d['date_ms']), d['type'])
-            self.__trades_list.append(tmp)
+    def websocket_trades_filter(self, data):
+        t_data = data['data']
+        date = str(datetime.datetime.now().date())
+        self.lock_trades_list.acquire()
+        try:
+            for i, l in enumerate(t_data):
+                temp = dict()
+                temp['tid'] = int(l[0])
+                temp['price'] = float(l[1])
+                temp['amount'] = float(l[2])
+                t_date = date + ' ' + l[3]
+                temp['timestamp'] = int(datetime.datetime.strptime(t_date, '%Y-%m-%d %H:%M:%S').timestamp() * 1000)
+                temp['type'] = l[4]
+                # print(i, temp)
+                if temp not in self.__trades_list:
+                    self.__trades_list.append(temp)
+            # for j, d in enumerate(self.__trades_list):
+            #     print(j, d)
+            print('trades: websocket add data')
+        finally:
+            self.lock_trades_list.release()
+
+    def rest_add_data_for_trades(self, data):
+        self.lock_trades_list.acquire()
+        try:
+            # print('rest_add_data_for_trades:', self.__trades_list)
+            self.__trades_list.clear()
+            for i, d in enumerate(data):
+                temp = dict()
+                temp['tid'] = d['tid']
+                temp['price'] = float(d['price'])
+                temp['amount'] = float(d['amount'])
+                temp['timestamp'] = d['date_ms']
+                temp['type'] = 'bid' if d['type'] == 'buy' else 'ask'
+                self.__trades_list.append(temp)
+                # print(i, temp)
+            print('trades: rest add data')
+            # for j, d in enumerate(self.__trades_list):
+            #     print(j, d)
+        finally:
+            self.lock_trades_list.release()
+
+    def get_trades_list(self):
+        if len(self.__trades_list) == 0:
+            return []
+        self.lock_trades_list.acquire()
+        try:
+            # print(self.__trades_list, type(self.__trades_list))
+            self.__trades_list.sort(key=lambda t: t['timestamp'], reverse=True)
+            print('trades: get data.')
+            self.__trades_list = self.__trades_list[:60]
+            return self.__trades_list
+        finally:
+            self.lock_trades_list.release()
 
     def kline_add_data(self, data):
         # TODO
@@ -125,9 +171,6 @@ class DataFilter(object):
         for i, l in enumerate(data):
             tmp = kline(l[0], l[1], l[2], l[3], l[4], l[5])
             self.__kline_list.append(tmp)
-
-    def get_trades_list(self):
-        return self.__trades_list
 
     def get_kline_list(self):
         return self.__kline_list

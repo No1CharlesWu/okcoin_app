@@ -32,9 +32,9 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 def on_open(self):
     l = list()
-    l.append(websocket_ticker())
-    l.append(websocket_depth())
-    # l.append(websocket_trades())
+    # l.append(websocket_ticker())
+    # l.append(websocket_depth())
+    l.append(websocket_trades())
     # l.append(websocket_kline())
     self.send(str(l))
 
@@ -54,6 +54,10 @@ def on_message(self, evt):
     data = json.loads(evt)[0]
     # print(datetime.now(), data)
     global_data_filter.websocket_add_data(data)
+    print('--------------------------------------------')
+    print('--------------------------------------------')
+    for i, d in enumerate(global_data_filter.get_trades_list()):
+        print(i, d)
 
 
 def on_error(self, error):
