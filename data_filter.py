@@ -77,8 +77,8 @@ class DataFilter(object):
             # print('depth: websocket add data')
             temp = data['data']
             for i, l in enumerate(temp['asks']):
-                temp['ask'][i][0] = float(l[0])
-                temp['ask'][i][1] = float(l[1])
+                temp['asks'][i][0] = float(l[0])
+                temp['asks'][i][1] = float(l[1])
             for i, l in enumerate(temp['bids']):
                 temp['bids'][i][0] = float(l[0])
                 temp['bids'][i][1] = float(l[1])
@@ -91,7 +91,7 @@ class DataFilter(object):
     def rest_add_data_for_depth(self, data):
         self.lock_depth_list.acquire()
         try:
-            data['timestamp'] = datetime.datetime.now().timestamp() * 1000
+            data['timestamp'] = int(datetime.datetime.now().timestamp() * 1000)
             self.__depth_list.append(data)
             print('depth: rest add data')
         finally:

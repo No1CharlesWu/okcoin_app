@@ -113,8 +113,8 @@ if __name__ == '__main__':
     for i in range(1000):
         print(i)
         rest_depth(symbol='btc_cny', size=20)
+        print(global_data_filter.get_depth_list())
         time.sleep(1)
-
     # for i in range(10):
     #     rest_trades()
     # print(global_data_filter.get_trades_list())
