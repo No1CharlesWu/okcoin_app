@@ -98,7 +98,7 @@ class DataFilter(object):
 
     def get_depth_list(self):
         if len(self.__depth_list) == 0:
-            return None
+            return []
         self.lock_depth_list.acquire()
         try:
             self.__depth_list.sort(key=lambda d: d['timestamp'])

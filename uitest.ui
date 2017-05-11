@@ -27,7 +27,7 @@
      <string>连接</string>
     </property>
    </widget>
-   <widget class="QTableWidget" name="tricker_table">
+   <widget class="QTableWidget" name="ticker_table">
     <property name="geometry">
      <rect>
       <x>390</x>
@@ -132,7 +132,7 @@
   <connection>
    <sender>connect_button</sender>
    <signal>clicked()</signal>
-   <receiver>tricker_table</receiver>
+   <receiver>ticker_table</receiver>
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
