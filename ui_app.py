@@ -7,12 +7,8 @@ import time
 import data_filter
 import sys
 
+
 class Ui_MainWindow(object):
-
-    def __init__(self):
-        self.ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0}, 'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False, 'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}, 'send_rest': True, 'last_time': 0}
-
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1280, 800)
@@ -467,26 +463,6 @@ class Ui_MainWindow(object):
 
         self.my_setting()
 
-    def my_setting(self):
-        self.connect_button.clicked.connect(self.to_connect)
-
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.change_time)
-
-    def change_time(self):
-        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        self.status_label.setText(str(datetime.datetime.now()))
-
-        current_time = QtCore.QTime.currentTime()
-        self.lcdNumber.display(current_time.toString('HH:mm:ss'))
-
-        print('触发时钟')
-        update_ticker_table(self)
-
-    def to_connect(self):
-        self.timer.start(1000)
-        ui_thread_websocket_start(self)
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -809,10 +785,35 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "成交量(฿)"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.kline_tab), _translate("MainWindow", "K线数据"))
 
+    def __init__(self):
+        self.ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0}, 'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False, 'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}, 'send_rest': True, 'last_time': 0}
+        self.setupUi(QtWidgets.QMainWindow())
+
+    def my_setting(self):
+        self.connect_button.clicked.connect(self.to_connect)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.change_time)
+
+    def change_time(self):
+        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        self.status_label.setText(str(datetime.datetime.now()))
+
+        current_time = QtCore.QTime.currentTime()
+        self.lcdNumber.display(current_time.toString('HH:mm:ss'))
+
+        print('触发时钟')
+        update_ticker_table(self)
+
+    def to_connect(self):
+        self.timer.start(1000)
+        ui_thread_websocket_start(self)
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    # ui.setupUi(MainWindow)
+    # MainWindow.show()
+    ui.show()
     sys.exit(app.exec_())
