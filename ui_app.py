@@ -8,7 +8,10 @@ import data_filter
 import sys
 
 class Ui_MainWindow(object):
-    ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0}, 'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False, 'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}, 'send_rest': True, 'last_time': 0}
+
+    def __init__(self):
+        self.ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0}, 'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False, 'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}, 'send_rest': True, 'last_time': 0}
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -26,7 +29,7 @@ class Ui_MainWindow(object):
         self.connect_button = QtWidgets.QPushButton(self.centralwidget)
         self.connect_button.setObjectName("connect_button")
         self.verticalLayout_4.addWidget(self.connect_button)
-        self.lcdNumber = QtWidgets.QLCDNumber(self.centralwidget)
+        self.lcdNumber = QtWidgets.QLCDNumber(8, self.centralwidget)
         self.lcdNumber.setObjectName("lcdNumber")
         self.verticalLayout_4.addWidget(self.lcdNumber)
         self.horizontalLayout.addLayout(self.verticalLayout_4)
@@ -473,6 +476,9 @@ class Ui_MainWindow(object):
     def change_time(self):
         now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         self.status_label.setText(str(datetime.datetime.now()))
+
+        current_time = QtCore.QTime.currentTime()
+        self.lcdNumber.display(current_time.toString('HH:mm:ss'))
 
         print('触发时钟')
         update_ticker_table(self)
