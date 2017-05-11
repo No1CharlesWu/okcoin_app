@@ -807,6 +807,11 @@ class Ui_MainWindow(object):
             temp['timestamp'] = 0
             self.depth['bids'].append(temp)
 
+        self.trades = {'data': [], 'send_rest': True, 'now_time': 0}
+        for i in range(60):
+            temp = {'tid': 0, 'price': 0, 'amount': 0, 'timestamp': 0, 'type': 'NULL'}
+            self.trades['data'].append(temp)
+
     def my_setting(self):
         self.connect_button.clicked.connect(self.to_connect)
 
@@ -814,6 +819,13 @@ class Ui_MainWindow(object):
         self.timer.timeout.connect(self.change_time)
         self.depth_timer = QtCore.QTimer()
         self.depth_timer.timeout.connect(self.change_depth_table)
+        self.trades_timer = QtCore.QTimer()
+        self.trades_timer.timeout.connect(self.change_trades_table)
+
+    def change_trades_table(self):
+        print('触发 trades 时钟')
+        self.trades_label_2.setText('显示时间： %s' % str(datetime.datetime.now()))
+        update_trades_table(self)
 
     def change_depth_table(self):
         print('触发 depth 时钟')
@@ -832,6 +844,7 @@ class Ui_MainWindow(object):
     def to_connect(self):
         self.timer.start(1000)
         self.depth_timer.start(500)
+        self.trades_timer.start(500)
         ui_thread_websocket_start(self)
 
 

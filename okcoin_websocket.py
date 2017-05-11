@@ -34,7 +34,7 @@ def on_open(self):
     l = list()
     l.append(websocket_ticker())
     l.append(websocket_depth())
-    # l.append(websocket_trades())
+    l.append(websocket_trades())
     # l.append(websocket_kline())
     self.send(str(l))
 

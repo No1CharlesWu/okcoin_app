@@ -137,6 +137,11 @@ def ui_thread_rest_depth(self):
     d.start()
 
 
+def ui_thread_rest_trades(self):
+    tr = threading.Thread(target=okcoin_rest.rest_trades, name='rest_trades')
+    tr.start()
+
+
 def ui_change_depth_table(self):
     now_time = datetime.datetime.now().timestamp() * 1000
     self.depth_table_1.clearContents()
@@ -181,6 +186,49 @@ def ui_change_depth_table(self):
     self.depth_table_2.update()
 
 
+def ui_change_trades_table(self):
+    now_time = datetime.datetime.now().timestamp() * 1000
+    self.trades_table_1.clearContents()
+    self.trades_table_2.clearContents()
+
+    for i, d in enumerate(self.trades['data']):
+        time = d['timestamp'] / 1000
+        item0 = QtWidgets.QTableWidgetItem(datetime.datetime.fromtimestamp(time).strftime('%H:%M:%S'))
+        item1 = QtWidgets.QTableWidgetItem('%d' % d['tid'])
+        item2 = QtWidgets.QTableWidgetItem('%10.2f' % d['price'])
+        item3 = QtWidgets.QTableWidgetItem('%9.3f' % d['amount'])
+        item4 = QtWidgets.QTableWidgetItem('买入') if d['type'] == 'bid' else QtWidgets.QTableWidgetItem('卖出')
+        if now_time - d['timestamp'] <= 2000:  # 本应该为1秒的。但我感觉网络延迟，就加一秒
+            item0.setForeground(QtGui.QColor(0, 255, 0))
+            item1.setForeground(QtGui.QColor(0, 255, 0))
+            item2.setForeground(QtGui.QColor(0, 255, 0))
+            item3.setForeground(QtGui.QColor(0, 255, 0))
+            item4.setForeground(QtGui.QColor(0, 255, 0))
+        else:
+            item0.setForeground(QtGui.QColor(255, 0, 0))
+            item1.setForeground(QtGui.QColor(255, 0, 0))
+            item2.setForeground(QtGui.QColor(255, 0, 0))
+            item3.setForeground(QtGui.QColor(255, 0, 0))
+            item4.setForeground(QtGui.QColor(255, 0, 0))
+        if i < 20:
+            self.trades_table_1.setItem(i, 0, item0)
+            self.trades_table_1.setItem(i, 1, item1)
+            self.trades_table_1.setItem(i, 2, item2)
+            self.trades_table_1.setItem(i, 3, item3)
+            self.trades_table_1.setItem(i, 4, item4)
+        elif i < 40:
+            self.trades_table_2.setItem(i - 20, 0, item0)
+            self.trades_table_2.setItem(i - 20, 1, item1)
+            self.trades_table_2.setItem(i - 20, 2, item2)
+            self.trades_table_2.setItem(i - 20, 3, item3)
+            self.trades_table_2.setItem(i - 20, 4, item4)
+        else:
+            break
+
+    self.trades_table_1.update()
+    self.trades_table_2.update()
+
+
 def update_depth_table(self):
     get_depth = global_data_filter.get_depth_list()
     # print(get_depth)
@@ -193,7 +241,6 @@ def update_depth_table(self):
             ui_thread_rest_depth(self)
             self.depth['send_rest'] = True
         self.depth['now_time'] = datetime.datetime.now().timestamp() * 1000
-
     # print('aaaaa', self.depth)
     ui_change_depth_table(self)
 
@@ -225,20 +272,23 @@ def update_depth_time(self, new):
     self.depth['bids'] = temp
 
 
-# def update_depth_time(self, new):
-#     temp = self.depth['asks']
-#     for i, l in enumerate(new['asks']):
-#         for j,d in enumerate(temp):
-#             if l == d['l']:
-#                 d['timestamp'] = new['timestamp']
-#                 break
-#         else:
-#             t = dict()
-#             t['l'] = l
-#             t['timestamp'] = new['timestamp']
-#             temp.append(t)
-#     self.depth['asks'].sorted(lambda d:d['l'][0], reverse=True)
-#     self.depth['asks'] = self.depth['asks']
+def update_trades_time(self, new):
+    self.trades['data'] = new
+
+
+def update_trades_table(self):
+    get_trades = global_data_filter.get_trades_list()
+    if get_trades:
+        update_trades_time(self, get_trades)
+        self.trades['now_time'] = datetime.datetime.now().timestamp() * 1000
+        self.trades['send_rest'] = True
+    else:
+        if datetime.datetime.now().timestamp() * 1000 - self.trades['now_time'] >= 1000 and self.trades['send_rest']:
+            ui_thread_rest_trades(self)
+            self.trades['send_rest'] = True
+        self.trades['now_time'] = datetime.datetime.now().timestamp() * 1000
+    ui_change_trades_table(self)
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
