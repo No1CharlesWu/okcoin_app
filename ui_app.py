@@ -786,34 +786,44 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.kline_tab), _translate("MainWindow", "K线数据"))
 
     def __init__(self):
-        self.ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0}, 'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False, 'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False}, 'send_rest': True, 'last_time': 0}
-        self.setupUi(QtWidgets.QMainWindow())
+        self.ticker = {'data': {'timestamp': 0, 'buy': 0, 'sell': 0, 'high': 0, 'low': 0, 'last': 0, 'vol': 0},
+                       'update': {'now_time': 0, 'timestamp_update': False, 'buy_update': False, 'sell_update': False,
+                                  'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False},
+                       'send_rest': True, 'last_time': 0}
 
     def my_setting(self):
         self.connect_button.clicked.connect(self.to_connect)
 
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.change_time)
+        self.depth_timer = QtCore.QTimer()
+        self.depth_timer.timeout.connect(self.change_depth_table)
+
+    def change_depth_table(self):
+
+        print('触发 depth 时钟')
+        self.depth_label_2.setText('显示时间： %s' % str(datetime.datetime.now()))
+        update_depth_table(self)
 
     def change_time(self):
-        now_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         self.status_label.setText(str(datetime.datetime.now()))
 
         current_time = QtCore.QTime.currentTime()
         self.lcdNumber.display(current_time.toString('HH:mm:ss'))
 
-        print('触发时钟')
-        update_ticker_table(self)
+        # print('触发时钟')
+        # update_ticker_table(self)
 
     def to_connect(self):
         self.timer.start(1000)
+        self.depth_timer.start(500)
         ui_thread_websocket_start(self)
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    # ui.setupUi(MainWindow)
-    # MainWindow.show()
-    ui.show()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
     sys.exit(app.exec_())

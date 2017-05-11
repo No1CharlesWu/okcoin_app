@@ -132,6 +132,16 @@ def ui_thread_rest_ticker(self):
     t.start()
 
 
+def ui_thread_rest_depth(self):
+    d = threading.Thread(target=okcoin_rest.rest_depth, name='rest_depth', args=('btc_cny', 60))
+    d.start()
+
+
+def update_depth_table(self):
+    get_depth = global_data_filter.get_depth_list()
+    print(get_depth)
+
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()

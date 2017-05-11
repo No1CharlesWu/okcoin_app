@@ -15,7 +15,7 @@ def websocket_incremental_depth(symbol='btc', event='addChannel', binary=True):
     return {'event': event, 'channel': channel, 'binary': str(binary)}
 
 
-def websocket_depth(symbol='btc', size=20, event='addChannel', binary=True):
+def websocket_depth(symbol='btc', size=60, event='addChannel', binary=True):
     channel = 'ok_sub_spotcny_' + symbol + '_depth_' + str(size)
     return {'event': event, 'channel': channel, 'binary': str(binary)}
 
@@ -32,7 +32,7 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 def on_open(self):
     l = list()
-    # l.append(websocket_ticker())
+    l.append(websocket_ticker())
     l.append(websocket_depth())
     # l.append(websocket_trades())
     # l.append(websocket_kline())
@@ -56,8 +56,8 @@ def on_message(self, evt):
     global_data_filter.websocket_add_data(data)
     print('--------------------------------------------')
     print('--------------------------------------------')
-    for i, d in enumerate(global_data_filter.get_trades_list()):
-        print(i, d)
+    # for i, d in enumerate(global_data_filter.get_trades_list()):
+    #     print(i, d)
 
 
 def on_error(self, error):
