@@ -55,7 +55,6 @@ def on_message(self, evt):
     # print(datetime.now(), data)
     global_data_filter.websocket_add_data(data)
     print('--------------------------------------------')
-    print('--------------------------------------------')
     # for i, d in enumerate(global_data_filter.get_trades_list()):
     #     print(i, d)
 

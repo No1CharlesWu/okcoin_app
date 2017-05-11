@@ -80,9 +80,7 @@ def rest_trades(**kwargs):
         print('Exception rest_trades', e)
         return
     # print(okcoinSpot.trades(**kwargs))
-    print('-----------------------------------------------------------------------')
     global_data_filter.rest_add_data_for_trades(data)
-    # print('--------------------------------------------')
     # print('--------------------------------------------')
     # for j, d in enumerate(data):
     #     print(j, d)

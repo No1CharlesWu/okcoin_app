@@ -133,14 +133,112 @@ def ui_thread_rest_ticker(self):
 
 
 def ui_thread_rest_depth(self):
-    d = threading.Thread(target=okcoin_rest.rest_depth, name='rest_depth', args=('btc_cny', 60))
+    d = threading.Thread(target=okcoin_rest.rest_depth, name='rest_depth', kwargs={'symbol': 'btc_cny', 'since': 60})
     d.start()
+
+
+def ui_change_depth_table(self):
+    now_time = datetime.datetime.now().timestamp() * 1000
+    self.depth_table_1.clearContents()
+    self.depth_table_2.clearContents()
+
+    for i, d in enumerate(self.depth['bids']):
+        item0 = QtWidgets.QTableWidgetItem('%10.2f' % d['l'][0])
+        item1 = QtWidgets.QTableWidgetItem('%9.3f' % d['l'][1])
+        if now_time - d['timestamp'] <= 1000:
+            item0.setForeground(QtGui.QColor(0, 255, 0))
+            item1.setForeground(QtGui.QColor(0, 255, 0))
+        else:
+            item0.setForeground(QtGui.QColor(255, 0, 0))
+            item1.setForeground(QtGui.QColor(255, 0, 0))
+        if i < 20:
+            self.depth_table_1.setItem(i, 0, item0)
+            self.depth_table_1.setItem(i, 1, item1)
+        elif i < 40:
+            self.depth_table_2.setItem(i - 20, 0, item0)
+            self.depth_table_2.setItem(i - 20, 1, item1)
+        else:
+            break
+
+    for i, d in enumerate(self.depth['asks'][::-1]):
+        item0 = QtWidgets.QTableWidgetItem('%10.2f' % d['l'][0])
+        item1 = QtWidgets.QTableWidgetItem('%9.3f' % d['l'][1])
+        if now_time - d['timestamp'] <= 1000:
+            item0.setForeground(QtGui.QColor(0, 255, 0))
+            item1.setForeground(QtGui.QColor(0, 255, 0))
+        else:
+            item0.setForeground(QtGui.QColor(255, 0, 0))
+            item1.setForeground(QtGui.QColor(255, 0, 0))
+        if i < 20:
+            self.depth_table_1.setItem(i, 2, item0)
+            self.depth_table_1.setItem(i, 3, item1)
+        elif i < 40:
+            self.depth_table_2.setItem(i - 20, 2, item0)
+            self.depth_table_2.setItem(i - 20, 3, item1)
+        else:
+            break
+    self.depth_table_1.update()
+    self.depth_table_2.update()
 
 
 def update_depth_table(self):
     get_depth = global_data_filter.get_depth_list()
-    print(get_depth)
+    # print(get_depth)
+    if get_depth:
+        update_depth_time(self, get_depth)
+        self.depth['now_time'] = datetime.datetime.now().timestamp() * 1000
+        self.depth['send_rest'] = True
+    else:
+        if datetime.datetime.now().timestamp() * 1000 - self.depth['now_time'] >= 1000 and self.depth['send_rest']:
+            ui_thread_rest_depth(self)
+            self.depth['send_rest'] = True
+        self.depth['now_time'] = datetime.datetime.now().timestamp() * 1000
 
+    # print('aaaaa', self.depth)
+    ui_change_depth_table(self)
+
+
+def update_depth_time(self, new):
+    temp = list()
+    for i, l in enumerate(new['asks']):
+        t_d = dict()
+        t_d['l'] = l
+        for j, d in enumerate(self.depth['asks']):
+            if l == d['l']:
+                t_d['timestamp'] = d['timestamp']
+                break
+        else:
+            t_d['timestamp'] = new['timestamp']
+        temp.append(t_d)
+    self.depth['asks'] = temp
+    temp = list()
+    for i, l in enumerate(new['bids']):
+        t_d = dict()
+        t_d['l'] = l
+        for j, d in enumerate(self.depth['bids']):
+            if l == d['l']:
+                t_d['timestamp'] = d['timestamp']
+                break
+        else:
+            t_d['timestamp'] = new['timestamp']
+        temp.append(t_d)
+    self.depth['bids'] = temp
+
+
+# def update_depth_time(self, new):
+#     temp = self.depth['asks']
+#     for i, l in enumerate(new['asks']):
+#         for j,d in enumerate(temp):
+#             if l == d['l']:
+#                 d['timestamp'] = new['timestamp']
+#                 break
+#         else:
+#             t = dict()
+#             t['l'] = l
+#             t['timestamp'] = new['timestamp']
+#             temp.append(t)
+#     self.depth['asks'].sorted(lambda d:d['l'][0], reverse=True)
+#     self.depth['asks'] = self.depth['asks']
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

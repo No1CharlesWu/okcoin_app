@@ -791,6 +791,22 @@ class Ui_MainWindow(object):
                                   'high_update': False, 'low_update': False, 'last_update': False, 'vol_update': False},
                        'send_rest': True, 'last_time': 0}
 
+        self.depth = dict()
+        self.depth['send_rest'] = True
+        self.depth['now_time'] = 0
+        self.depth['asks'] = list()
+        self.depth['bids'] = list()
+        for i in range(60):
+            temp = dict()
+            temp['l'] = [0.0, 0.0]
+            temp['timestamp'] = 0
+            self.depth['asks'].append(temp)
+        for i in range(60):
+            temp = dict()
+            temp['l'] = [0.0, 0.0]
+            temp['timestamp'] = 0
+            self.depth['bids'].append(temp)
+
     def my_setting(self):
         self.connect_button.clicked.connect(self.to_connect)
 
@@ -800,7 +816,6 @@ class Ui_MainWindow(object):
         self.depth_timer.timeout.connect(self.change_depth_table)
 
     def change_depth_table(self):
-
         print('触发 depth 时钟')
         self.depth_label_2.setText('显示时间： %s' % str(datetime.datetime.now()))
         update_depth_table(self)
@@ -811,8 +826,8 @@ class Ui_MainWindow(object):
         current_time = QtCore.QTime.currentTime()
         self.lcdNumber.display(current_time.toString('HH:mm:ss'))
 
-        # print('触发时钟')
-        # update_ticker_table(self)
+        print('触发 ticker 时钟')
+        update_ticker_table(self)
 
     def to_connect(self):
         self.timer.start(1000)

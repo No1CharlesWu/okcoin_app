@@ -98,7 +98,8 @@ class DataFilter(object):
 
     def get_depth_list(self):
         if len(self.__depth_list) == 0:
-            return []
+            # return {'asks':[],'bids':[],'timestamp':0}
+            return None
         self.lock_depth_list.acquire()
         try:
             self.__depth_list.sort(key=lambda d: d['timestamp'])
