@@ -1,7 +1,7 @@
 import websocket
 import zlib
 import json
-from datetime import datetime
+import datetime
 from data_filter import global_data_filter
 
 
@@ -32,10 +32,10 @@ def websocket_kline(symbol='btc', time='1min', event='addChannel', binary=True):
 
 def on_open(self):
     l = list()
-    l.append(websocket_ticker())
-    l.append(websocket_depth())
-    l.append(websocket_trades())
-    # l.append(websocket_kline())
+    # l.append(websocket_ticker())
+    # l.append(websocket_depth())
+    # l.append(websocket_trades())
+    l.append(websocket_kline())
     self.send(str(l))
 
 
@@ -55,6 +55,8 @@ def on_message(self, evt):
     # print(datetime.now(), data)
     global_data_filter.websocket_add_data(data)
     print('--------------------------------------------')
+    # for i, d in enumerate(global_data_filter.get_kline_list()):
+    #     print(i, datetime.datetime.fromtimestamp(d['timestamp']/1000), d)
     # for i, d in enumerate(global_data_filter.get_trades_list()):
     #     print(i, d)
 

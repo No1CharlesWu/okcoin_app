@@ -1,5 +1,6 @@
 from okcoin_spot_API import OKCoinSpot
 from data_filter import global_data_filter
+import datetime
 import time
 
 # 初始化api_key，secret_key,url
@@ -105,12 +106,19 @@ def rest_kline(*, symbol, type, **kwargs):
     :param kwargs: 
     :return: 
     """
-    size = kwargs['size'] if 'size' in kwargs else ''
-    since = kwargs['since'] if 'since' in kwargs else ''
-    print('现货K线数据 kline: symbol=%s type=%s size=%s since=%s' % (symbol, type, size, since))
-    data = okcoinSpot.kline(symbol=symbol, type=type)
-    print(okcoinSpot.kline(symbol=symbol, type=type))
-    global_data_filter.kline_add_data(data)
+    # size = kwargs['size'] if 'size' in kwargs else ''
+    # since = kwargs['since'] if 'since' in kwargs else ''
+    # print('现货K线数据 kline: symbol=%s type=%s size=%s since=%s' % (symbol, type, size, since))
+    try:
+        data = okcoinSpot.kline(symbol=symbol, type=type, **kwargs)
+    except Exception as e:
+        print('Exception rest_kline', e)
+        return
+    global_data_filter.rest_add_data_for_kline(data)
+    # print(okcoinSpot.kline(symbol=symbol, type=type))
+    print('-----------------------------')
+    # for i, l in enumerate(data):
+    #     print(i, datetime.datetime.fromtimestamp(l[0] / 1000), l)
 
 
 if __name__ == '__main__':
@@ -123,11 +131,12 @@ if __name__ == '__main__':
     #     rest_depth(symbol='btc_cny', size=20)
     #     print(global_data_filter.get_depth_list())
     #     time.sleep(1)
-    for i in range(1000):
-        rest_trades()
-        for j, d in enumerate(global_data_filter.get_trades_list()):
-            print(j, d)
-        time.sleep(1)
-        # for i in range(10):
-        #     rest_kline(symbol='btc_cny', type='1min')
-        # print(global_data_filter.get_kline_list())
+    # for i in range(1000):
+    #     rest_trades()
+    #     for j, d in enumerate(global_data_filter.get_trades_list()):
+    #         print(j, d)
+    #     time.sleep(1)
+    for i in range(10):
+        rest_kline(symbol='btc_cny', type='1min', size=40)
+        for i, d in enumerate(global_data_filter.get_kline_list()):
+            print(i, datetime.datetime.fromtimestamp(d['timestamp'] / 1000), d)

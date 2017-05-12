@@ -14,6 +14,7 @@ class DataFilter(object):
         self.lock_ticker_list = threading.Lock()
         self.lock_depth_list = threading.Lock()
         self.lock_trades_list = threading.Lock()
+        self.lock_kline_list = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
         if DataFilter.__instance is None:
@@ -32,10 +33,8 @@ class DataFilter(object):
             tr = threading.Thread(target=self.websocket_trades_filter, name='trades_filter', args=(data,))
             tr.start()
         elif 'kline' in channel:
-            # TODO
-            # self.__kline_list.extend(data['data'])
-            # self.__kline_list.sort(key=lambda l: l[0])
-            pass
+            k = threading.Thread(target=self.websocket_kline_filter, name='kline_filter', args=(data,))
+            k.start()
 
     def websocket_ticker_filter(self, data):
         self.lock_ticker_list.acquire()
@@ -165,16 +164,55 @@ class DataFilter(object):
         finally:
             self.lock_trades_list.release()
 
-    def kline_add_data(self, data):
-        # TODO
-        # 根据时间段进行数据合并
-        kline = namedtuple('kline', ['timestamp', 'open', 'high', 'low', 'close', 'vol'])
-        for i, l in enumerate(data):
-            tmp = kline(l[0], l[1], l[2], l[3], l[4], l[5])
-            self.__kline_list.append(tmp)
+    def websocket_kline_filter(self, data):
+        t_data = data['data']
+        self.lock_kline_list.acquire()
+        try:
+            for i, l in enumerate(t_data):
+                temp = dict()
+                temp['timestamp'] = int(l[0])
+                temp['open'] = float(l[1])
+                temp['high'] = float(l[2])
+                temp['low'] = float(l[3])
+                temp['close'] = float(l[4])
+                temp['vol'] = float(l[5])
+                for j, d in enumerate(self.__kline_list[::]):
+                    if temp['timestamp'] == d['timestamp']:
+                        self.__kline_list.pop(i)
+                        break
+                self.__kline_list.append(temp)
+            print('kline: websocket add data')
+        finally:
+            self.lock_kline_list.release()
+
+    def rest_add_data_for_kline(self, data):
+        self.lock_kline_list.acquire()
+        try:
+            self.__kline_list.clear()
+            for i, l in enumerate(data):
+                temp = dict()
+                temp['timestamp'] = l[0]
+                temp['open'] = l[1]
+                temp['high'] = l[2]
+                temp['low'] = l[3]
+                temp['close'] = l[4]
+                temp['vol'] = l[5]
+                self.__kline_list.append(temp)
+            print('kline: rest add data')
+        finally:
+            self.lock_kline_list.release()
 
     def get_kline_list(self):
-        return self.__kline_list
+        if len(self.__kline_list) == 0:
+            return []
+        self.lock_kline_list.acquire()
+        try:
+            self.__kline_list.sort(key=lambda k:k['timestamp'], reverse=True)
+            print('trades: get data.')
+            self.__kline_list = self.__kline_list[:40]
+            return self.__kline_list
+        finally:
+            self.lock_kline_list.release()
 
 
 global_data_filter = DataFilter()
