@@ -72,15 +72,15 @@ def on_close(self):
 
 
 def websocket_start():
-    url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
-    api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
-    secret_key = '7C1DDC1745C93B87BE1643A689938459'
-    websocket.enableTrace(True)
-    host = url
-    ws = websocket.WebSocketApp(host, on_message=on_message, on_error=on_error, on_close=on_close)
-    ws.on_open = on_open
     ws.run_forever(ping_interval=20)
 
+
+url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
+api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
+secret_key = '7C1DDC1745C93B87BE1643A689938459'
+websocket.enableTrace(True)
+host = url
+ws = websocket.WebSocketApp(host, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
 
 if __name__ == "__main__":
     websocket_start()

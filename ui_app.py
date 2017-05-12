@@ -859,6 +859,21 @@ class Ui_MainWindow(object):
         self.trades_timer.start(500)
         self.kline_timer.start(1000)
 
+    def closeEvent(self, event):
+        self.timer.stop()
+        self.depth_timer.stop()
+        self.trades_timer.stop()
+        self.kline_timer.stop()
+        # okcoin_websocket.ws.close()
+        # # 关闭窗口的事件触发消息框询问，并设置消息框标题，提示信息，选择按键
+        # reply = QtGui.QMessageBox.question(self, 'Message',
+        #                                    "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        #
+        # if reply == QtGui.QMessageBox.Yes:
+        #     event.accept()
+        # else:
+        #     event.ignore()
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
