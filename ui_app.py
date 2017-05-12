@@ -812,9 +812,9 @@ class Ui_MainWindow(object):
             temp = {'tid': 0, 'price': 0, 'amount': 0, 'timestamp': 0, 'type': 'NULL'}
             self.trades['data'].append(temp)
 
-        self.kline = {'data':[],'send_rest':True,'now_time':0,'update':False}
+        self.kline = {'data': [], 'send_rest': True, 'now_time': 0, 'update': False}
         for i in range(40):
-            temp = {'timestamp':0,'open':0,'high':0,'low':0,'close':0,'vol':0}
+            temp = {'timestamp': 0, 'open': 0, 'high': 0, 'low': 0, 'close': 0, 'vol': 0}
             self.kline['data'].append(temp)
 
     def my_setting(self):

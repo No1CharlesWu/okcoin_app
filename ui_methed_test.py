@@ -142,9 +142,12 @@ def ui_thread_rest_trades(self):
     tr = threading.Thread(target=okcoin_rest.rest_trades, name='rest_trades')
     tr.start()
 
+
 def ui_thread_rest_kline(self):
-    k = threading.Thread(target=okcoin_rest.rest_kline, name='rest_kline', kwargs={'symbol':'btc_cny', 'type':'1min', 'size':40})
-    k .start()
+    k = threading.Thread(target=okcoin_rest.rest_kline, name='rest_kline',
+                         kwargs={'symbol': 'btc_cny', 'type': '1min', 'size': 40})
+    k.start()
+
 
 def ui_change_depth_table(self):
     now_time = datetime.datetime.now().timestamp() * 1000
@@ -232,6 +235,7 @@ def ui_change_trades_table(self):
     self.trades_table_1.update()
     self.trades_table_2.update()
 
+
 def ui_change_kline_table(self):
     now_time = datetime.datetime.now().timestamp() * 1000
     self.kline_table.clearContents()
@@ -270,6 +274,7 @@ def ui_change_kline_table(self):
 
     self.kline_table.update()
 
+
 def update_depth_table(self):
     get_depth = global_data_filter.get_depth_list()
     # print(get_depth)
@@ -284,6 +289,7 @@ def update_depth_table(self):
         self.depth['now_time'] = datetime.datetime.now().timestamp() * 1000
     # print('aaaaa', self.depth)
     ui_change_depth_table(self)
+
 
 def update_depth_time(self, new):
     temp = list()
@@ -311,8 +317,10 @@ def update_depth_time(self, new):
         temp.append(t_d)
     self.depth['bids'] = temp
 
+
 def update_trades_time(self, new):
     self.trades['data'] = copy.copy(new)
+
 
 def update_kline_time(self, new):
     if new[0] != self.kline['data'][0]:
@@ -333,13 +341,13 @@ def update_trades_table(self):
         self.trades['now_time'] = datetime.datetime.now().timestamp() * 1000
     ui_change_trades_table(self)
 
+
 def update_kline_table(self):
     get_kline = global_data_filter.get_kline_list()
 
-
     self.kline['update'] = False
     if get_kline:
-        update_kline_time(self,get_kline)
+        update_kline_time(self, get_kline)
         self.kline['now_time'] = datetime.datetime.now().timestamp() * 1000
         self.kline['send_rest'] = True
     else:

@@ -207,7 +207,7 @@ class DataFilter(object):
             return []
         self.lock_kline_list.acquire()
         try:
-            self.__kline_list.sort(key=lambda k:k['timestamp'], reverse=True)
+            self.__kline_list.sort(key=lambda k: k['timestamp'], reverse=True)
             print('kline: get data.')
             self.__kline_list = self.__kline_list[:40]
             return self.__kline_list
