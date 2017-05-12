@@ -176,9 +176,9 @@ class DataFilter(object):
                 temp['low'] = float(l[3])
                 temp['close'] = float(l[4])
                 temp['vol'] = float(l[5])
-                for j, d in enumerate(self.__kline_list[::]):
+                for j, d in enumerate(self.__kline_list):
                     if temp['timestamp'] == d['timestamp']:
-                        self.__kline_list.pop(i)
+                        self.__kline_list.pop(j)
                         break
                 self.__kline_list.append(temp)
             print('kline: websocket add data')
@@ -208,7 +208,7 @@ class DataFilter(object):
         self.lock_kline_list.acquire()
         try:
             self.__kline_list.sort(key=lambda k:k['timestamp'], reverse=True)
-            print('trades: get data.')
+            print('kline: get data.')
             self.__kline_list = self.__kline_list[:40]
             return self.__kline_list
         finally:

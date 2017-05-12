@@ -812,15 +812,26 @@ class Ui_MainWindow(object):
             temp = {'tid': 0, 'price': 0, 'amount': 0, 'timestamp': 0, 'type': 'NULL'}
             self.trades['data'].append(temp)
 
+        self.kline = {'data':[],'send_rest':True,'now_time':0,'update':False}
+        for i in range(40):
+            temp = {'timestamp':0,'open':0,'high':0,'low':0,'close':0,'vol':0}
+            self.kline['data'].append(temp)
+
     def my_setting(self):
         self.connect_button.clicked.connect(self.to_connect)
-
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.change_time)
         self.depth_timer = QtCore.QTimer()
         self.depth_timer.timeout.connect(self.change_depth_table)
         self.trades_timer = QtCore.QTimer()
         self.trades_timer.timeout.connect(self.change_trades_table)
+        self.kline_timer = QtCore.QTimer()
+        self.kline_timer.timeout.connect(self.change_kline_table)
+
+    def change_kline_table(self):
+        print('触发 kline 时钟')
+        self.kline_label.setText('K线数据 1分钟间隔 显示时间： %s' % str(datetime.datetime.now()))
+        update_kline_table(self)
 
     def change_trades_table(self):
         print('触发 trades 时钟')
@@ -842,10 +853,11 @@ class Ui_MainWindow(object):
         update_ticker_table(self)
 
     def to_connect(self):
+        ui_thread_websocket_start(self)
         self.timer.start(1000)
         self.depth_timer.start(500)
         self.trades_timer.start(500)
-        ui_thread_websocket_start(self)
+        self.kline_timer.start(1000)
 
 
 if __name__ == '__main__':

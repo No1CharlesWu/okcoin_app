@@ -12,6 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from data_filter import global_data_filter
 import okcoin_rest
 import random
+import copy
 
 
 def ui_change_status_label(self):
@@ -141,6 +142,9 @@ def ui_thread_rest_trades(self):
     tr = threading.Thread(target=okcoin_rest.rest_trades, name='rest_trades')
     tr.start()
 
+def ui_thread_rest_kline(self):
+    k = threading.Thread(target=okcoin_rest.rest_kline, name='rest_kline', kwargs={'symbol':'btc_cny', 'type':'1min', 'size':40})
+    k .start()
 
 def ui_change_depth_table(self):
     now_time = datetime.datetime.now().timestamp() * 1000
@@ -228,6 +232,43 @@ def ui_change_trades_table(self):
     self.trades_table_1.update()
     self.trades_table_2.update()
 
+def ui_change_kline_table(self):
+    now_time = datetime.datetime.now().timestamp() * 1000
+    self.kline_table.clearContents()
+
+    for i, d in enumerate(self.kline['data']):
+        time = d['timestamp'] / 1000
+        item0 = QtWidgets.QTableWidgetItem(datetime.datetime.fromtimestamp(time).strftime('%Y-%m-%d %H:%M:%S'))
+        item1 = QtWidgets.QTableWidgetItem('%10.2f' % d['open'])
+        item2 = QtWidgets.QTableWidgetItem('%10.2f' % d['high'])
+        item3 = QtWidgets.QTableWidgetItem('%10.2f' % d['low'])
+        item4 = QtWidgets.QTableWidgetItem('%10.2f' % d['close'])
+        item5 = QtWidgets.QTableWidgetItem('%9.3f' % d['vol'])
+        if i == 0 and self.kline['update']:  # 本应该为1秒的。但我感觉网络延迟，就加一秒
+            item0.setForeground(QtGui.QColor(0, 255, 0))
+            item1.setForeground(QtGui.QColor(0, 255, 0))
+            item2.setForeground(QtGui.QColor(0, 255, 0))
+            item3.setForeground(QtGui.QColor(0, 255, 0))
+            item4.setForeground(QtGui.QColor(0, 255, 0))
+            item5.setForeground(QtGui.QColor(0, 255, 0))
+        else:
+            item0.setForeground(QtGui.QColor(255, 0, 0))
+            item1.setForeground(QtGui.QColor(255, 0, 0))
+            item2.setForeground(QtGui.QColor(255, 0, 0))
+            item3.setForeground(QtGui.QColor(255, 0, 0))
+            item4.setForeground(QtGui.QColor(255, 0, 0))
+            item5.setForeground(QtGui.QColor(255, 0, 0))
+        if i < 40:
+            self.kline_table.setItem(i, 0, item0)
+            self.kline_table.setItem(i, 1, item1)
+            self.kline_table.setItem(i, 2, item2)
+            self.kline_table.setItem(i, 3, item3)
+            self.kline_table.setItem(i, 4, item4)
+            self.kline_table.setItem(i, 5, item5)
+        else:
+            break
+
+    self.kline_table.update()
 
 def update_depth_table(self):
     get_depth = global_data_filter.get_depth_list()
@@ -243,7 +284,6 @@ def update_depth_table(self):
         self.depth['now_time'] = datetime.datetime.now().timestamp() * 1000
     # print('aaaaa', self.depth)
     ui_change_depth_table(self)
-
 
 def update_depth_time(self, new):
     temp = list()
@@ -271,9 +311,13 @@ def update_depth_time(self, new):
         temp.append(t_d)
     self.depth['bids'] = temp
 
-
 def update_trades_time(self, new):
-    self.trades['data'] = new
+    self.trades['data'] = copy.copy(new)
+
+def update_kline_time(self, new):
+    if new[0] != self.kline['data'][0]:
+        self.kline['update'] = True
+    self.kline['data'] = copy.deepcopy(new)
 
 
 def update_trades_table(self):
@@ -288,6 +332,22 @@ def update_trades_table(self):
             self.trades['send_rest'] = True
         self.trades['now_time'] = datetime.datetime.now().timestamp() * 1000
     ui_change_trades_table(self)
+
+def update_kline_table(self):
+    get_kline = global_data_filter.get_kline_list()
+
+
+    self.kline['update'] = False
+    if get_kline:
+        update_kline_time(self,get_kline)
+        self.kline['now_time'] = datetime.datetime.now().timestamp() * 1000
+        self.kline['send_rest'] = True
+    else:
+        if datetime.datetime.now().timestamp() * 1000 - self.kline['now_time'] >= 1000 and self.kline['send_rest']:
+            ui_thread_rest_kline(self)
+            self.kline['send_rest'] = True
+        self.kline['now_time'] = datetime.datetime.now().timestamp() * 1000
+    ui_change_kline_table(self)
 
 
 if __name__ == '__main__':
