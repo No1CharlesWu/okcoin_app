@@ -63,24 +63,27 @@ def on_message(self, evt):
 
 def on_error(self, error):
     print(error)
-    websocket_start()
-
+    # tws = websocket.WebSocketApp(host, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
+    # tws.run_forever(ping_interval=20)
 
 def on_close(self):
     print('DISCONNECT')
-    websocket_start()
+
+
+def websocket_stop():
+    ws.close()
 
 
 def websocket_start():
-    url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
-    api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
-    secret_key = '7C1DDC1745C93B87BE1643A689938459'
-    websocket.enableTrace(True)
-    host = url
-    ws = websocket.WebSocketApp(host, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
     ws.run_forever(ping_interval=20)
 
 
+url = "wss://real.okcoin.cn:10440/websocket/okcoinapi"
+api_key = 'c3b622bc-8255-40f2-9585-138928ae376d'
+secret_key = '7C1DDC1745C93B87BE1643A689938459'
+websocket.enableTrace(True)
+host = url
+ws = websocket.WebSocketApp(host, on_open=on_open, on_message=on_message, on_error=on_error, on_close=on_close)
 
 if __name__ == "__main__":
     websocket_start()

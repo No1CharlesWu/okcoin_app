@@ -6,6 +6,7 @@ import datetime
 import time
 import data_filter
 import sys
+from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QAction
 
 
 class Ui_MainWindow(object):
@@ -456,12 +457,10 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-        self.my_setting()
+        self.my_setting(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -817,7 +816,7 @@ class Ui_MainWindow(object):
             temp = {'timestamp': 0, 'open': 0, 'high': 0, 'low': 0, 'close': 0, 'vol': 0}
             self.kline['data'].append(temp)
 
-    def my_setting(self):
+    def my_setting(self, MainWindow):
         self.connect_button.clicked.connect(self.to_connect)
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.change_time)
@@ -827,6 +826,25 @@ class Ui_MainWindow(object):
         self.trades_timer.timeout.connect(self.change_trades_table)
         self.kline_timer = QtCore.QTimer()
         self.kline_timer.timeout.connect(self.change_kline_table)
+
+        MainWindow.closeEvent = self.my_closeEvent
+
+    def my_closeEvent(self, event):
+        close = QMessageBox()
+        close.setText("You sure?")
+        close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        close = close.exec()
+
+        if close == QMessageBox.Yes:
+            self.timer.stop()
+            self.depth_timer.stop()
+            self.trades_timer.stop()
+            self.kline_timer.stop()
+            okcoin_websocket.websocket_stop()
+            event.accept()
+        else:
+            event.ignore()
+        return
 
     def change_kline_table(self):
         print('触发 kline 时钟')
@@ -859,20 +877,21 @@ class Ui_MainWindow(object):
         self.trades_timer.start(500)
         self.kline_timer.start(1000)
 
-    def closeEvent(self, event):
-        self.timer.stop()
-        self.depth_timer.stop()
-        self.trades_timer.stop()
-        self.kline_timer.stop()
-        # okcoin_websocket.ws.close()
-        # # 关闭窗口的事件触发消息框询问，并设置消息框标题，提示信息，选择按键
-        # reply = QtGui.QMessageBox.question(self, 'Message',
-        #                                    "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        #
-        # if reply == QtGui.QMessageBox.Yes:
-        #     event.accept()
-        # else:
-        #     event.ignore()
+
+# class MyMainWindow(QtWidgets.QMainWindow):
+#     def closeEvent(self, event):
+#         print("close_event", event)
+#         okcoin_websocket.websocket_stop()
+#         close = QMessageBox()
+#         close.setText("You sure?")
+#         close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+#         close = close.exec()
+#
+#         if close == QMessageBox.Yes:
+#             event.accept()
+#         else:
+#             event.ignore()
+#         return
 
 
 if __name__ == '__main__':
