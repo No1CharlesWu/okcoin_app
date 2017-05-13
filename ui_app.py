@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from ui_methed_test import *
+from ui_methed import *
 import threading
 import random
 import datetime
