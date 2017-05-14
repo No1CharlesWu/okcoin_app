@@ -4,11 +4,11 @@ okcoin_app 文档说明及问题
 额外库：PyQt5 (pyqt5.6 anaconda自带)   websocket (https://github.com/websocket-client/websocket-client)
 
 程序文件夹名：okcoin_app
-启动程序：main.py
-REST：okcoin_rest.py (rest封装的调用接口) okcoin_rest_API.py (rest底层发送指令) http_MD5_util.py (http发送格式)
-WEBSOCKET: okcoin_websocket.py (websocket封装的调用接口)
-数据处理： data_filter.py
-UI：UI_ALL.ui (Qt Designer生成的UI界面布局）ui_app.py (由UI_ALL.ui生成的py文件） ui_methed.py (ui逻辑功能）
+1. 启动程序：main.py
+2. REST：okcoin_rest.py (rest封装的调用接口) okcoin_rest_API.py (rest底层发送指令) http_MD5_util.py (http发送格式)
+3. WEBSOCKET: okcoin_websocket.py (websocket封装的调用接口)
+4. 数据处理： data_filter.py
+5. UI：UI_ALL.ui (Qt Designer生成的UI界面布局）ui_app.py (由UI_ALL.ui生成的py文件） ui_methed.py (ui逻辑功能）
 
 运行方法： python3 main.py
 
